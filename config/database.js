@@ -9,8 +9,9 @@ const connectDB = async () => {
         });
         console.log('MongoDB подключен');
     } catch (error) {
-        console.error('Ошибка подключения к MongoDB:', error);
-        process.exit(1);
+        console.error('MongoDB не доступен. Работа без базы данных.');
+        console.log('Для полной функциональности установите MongoDB');
+        // Не завершаем процесс - работаем без БД
     }
 };
 

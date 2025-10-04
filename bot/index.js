@@ -18,6 +18,12 @@ const Order = require('./models/Order');
 const User = require('./models/User');
 const Product = require('./models/Product');
 
+// Передача экземпляра бота в контроллеры после создания
+setTimeout(() => {
+    orderController.setBot(bot);
+    adminController.setBot(bot);
+}, 100);
+
 // Инициализация
 const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
@@ -48,11 +54,21 @@ process.on('SIGINT', () => {
 connectDB();
 
 // Middleware для Express
-app.use(helmet());
+app.use(helmet({
+    contentSecurityPolicy: false
+}));
 app.use(compression());
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// Статические файлы для WebApp
+app.use('/webapp', express.static(path.join(__dirname, '../webapp')));
+
+// Логирование
+if (!fs.existsSync(path.join(__dirname, '../logs'))) {
+    fs.mkdirSync(path.join(__dirname, '../logs'), { recursive: true });
+}
 app.use(morgan('combined', {
     stream: fs.createWriteStream(path.join(__dirname, '../logs/access.log'), { flags: 'a' })
 }));
@@ -126,7 +142,7 @@ bot.onText(/\/start/, async (msg) => {
             inline_keyboard: [[
                 {
                     text: '🛒 Каталог',
-                    web_app: { url: process.env.WEBAPP_URL }
+                    web_app: { url: 'https://artemperekrestov777-lab.github.io/webappmactabakshop/' }
                 }
             ]]
         };
@@ -170,10 +186,12 @@ bot.onText(/\/start/, async (msg) => {
 });
 
 // Обработчик команды /admin
-bot.onText(/\/admin(?:\\s+(.+))?/, async (msg, match) => {
+bot.onText(/\/admin(.*)/, async (msg, match) => {
     const chatId = msg.chat.id;
     const userId = msg.from.id;
-    const password = match[1];
+    const fullCommand = match[1].trim();
+
+    console.log(`Admin command received from user ${userId}, full command: "${fullCommand}"`);
 
     // Проверка прав администратора
     if (userId !== parseInt(process.env.ADMIN_ID)) {
@@ -182,18 +200,21 @@ bot.onText(/\/admin(?:\\s+(.+))?/, async (msg, match) => {
     }
 
     // Проверка пароля
-    if (!password) {
+    if (!fullCommand) {
         await bot.sendMessage(chatId, 'Введите пароль: /admin <пароль>');
         return;
     }
 
-    if (password !== process.env.ADMIN_PASSWORD) {
+    if (fullCommand !== process.env.ADMIN_PASSWORD) {
         await bot.sendMessage(chatId, 'Неверный пароль.');
         return;
     }
 
     // Отправка ссылки на админ-панель
-    const adminUrl = `${process.env.WEBAPP_URL}/admin.html?token=${generateAdminToken(userId)}`;
+    const baseUrl = process.env.NODE_ENV === 'production'
+        ? process.env.WEBAPP_URL
+        : `http://localhost:${process.env.PORT || 3000}`;
+    const adminUrl = `${baseUrl}/admin.html?token=${generateAdminToken(userId)}`;
 
     await bot.sendMessage(chatId,
         '🔐 *Админ-панель*\n\n' +
@@ -211,6 +232,13 @@ bot.onText(/\/admin(?:\\s+(.+))?/, async (msg, match) => {
         }
     );
 });
+
+// Отладочный обработчик всех сообщений (только для разработки)
+if (process.env.NODE_ENV !== 'production') {
+    bot.on('message', (msg) => {
+        console.log(`Message received: "${msg.text}" from user ${msg.from.id}`);
+    });
+}
 
 // Функция генерации токена для админа
 function generateAdminToken(userId) {
@@ -418,6 +446,6 @@ app.listen(PORT, () => {
 });
 
 // Экспорт бота для использования в других модулях
-module.exports = { bot };
+module.exports = bot;
 
 console.log('Бот успешно запущен!');

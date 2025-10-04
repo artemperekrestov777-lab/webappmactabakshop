@@ -1,7 +1,13 @@
 const Order = require('../models/Order');
 const User = require('../models/User');
 const Product = require('../models/Product');
-const { bot } = require('../index');
+// Получение ссылки на бота будет через глобальную переменную
+let bot;
+
+// Установка ссылки на бота
+exports.setBot = (botInstance) => {
+    bot = botInstance;
+};
 const QRCode = require('qrcode');
 const path = require('path');
 const fs = require('fs');

@@ -1,5 +1,11 @@
 const Product = require('../models/Product');
-const { bot } = require('../index');
+// Получение ссылки на бота будет через глобальную переменную
+let bot;
+
+// Установка ссылки на бота
+exports.setBot = (botInstance) => {
+    bot = botInstance;
+};
 const fs = require('fs').promises;
 const path = require('path');
 const { exec } = require('child_process');
