@@ -175,12 +175,44 @@ body {
 }
 
 .sort-btn {
-    background: #f0f0f0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border: none;
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 20px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    color: white;
     cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.sort-btn:before {
+    content: "▲";
+    margin-right: 2px;
+    font-size: 10px;
+    line-height: 1;
+}
+
+.sort-btn:after {
+    content: "▼";
+    margin-left: 2px;
+    font-size: 10px;
+    line-height: 1;
+}
+
+.sort-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.sort-btn:active {
+    transform: translateY(0);
 }
 
 .categories-scroll {
