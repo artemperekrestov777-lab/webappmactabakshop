@@ -42,9 +42,49 @@ body {
 }
 
 .logo-container {
-    width: 150px;
-    height: 150px;
+    width: 200px;
+    height: 200px;
     margin: 20px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 50%;
+    background: white;
+    padding: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.logo-fallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-circle {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #333 0%, #555 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.logo-text {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 1.2;
 }
 
 .welcome-subtitle {
