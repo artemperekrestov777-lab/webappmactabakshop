@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель - МакТабак</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <!-- Форма входа -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-box">
+            <h2>Админ-панель МакТабак</h2>
+            <div class="form-group">
+                <label>Пароль администратора</label>
+                <input type="password" id="adminPassword" placeholder="Введите пароль">
+            </div>
+            <button onclick="adminLogin()">Войти</button>
+            <div id="loginError" class="error-message"></div>
+        </div>
+    </div>
+
+    <!-- Главная панель -->
+    <div id="adminPanel" style="display: none;">
+        <header class="admin-header">
+            <h1>Управление товарами</h1>
+            <button onclick="logout()">Выйти</button>
+        </header>
+
+        <div class="admin-container">
+            <!-- Меню действий -->
+            <div class="action-buttons">
+                <button class="action-btn" onclick="showAddProduct()">➕ Добавить товар</button>
+                <button class="action-btn" onclick="syncWithGitHub()">🔄 Синхронизация с GitHub</button>
+                <button class="action-btn" onclick="loadProducts()">📋 Список товаров</button>
+            </div>
+
+            <!-- Форма добавления/редактирования товара -->
+            <div id="productForm" class="product-form" style="display: none;">
+                <h3 id="formTitle">Добавить товар</h3>
+
+                <div class="form-group">
+                    <label>Название товара *</label>
+                    <input type="text" id="productName" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Категория *</label>
+                    <select id="productCategory" required>
+                        <option value="">Выберите категорию</option>
+                        <option value="new">Новинки от МАК ТАБАК</option>
+                        <option value="standard">Стандартные бленды</option>
+                        <option value="aromatic">Ароматизированные бленды</option>
+                        <option value="pipe">Трубочные бленды</option>
+                        <option value="gilzy">Сигаретные гильзы</option>
+                        <option value="custom">Собрать свой набор</option>
+                        <option value="mactabak">Продукция от МАКТАБАК</option>
+                        <option value="pipes">Курительные трубки</option>
+                        <option value="machines">Машинки для набивки</option>
+                        <option value="tea">Китайский чай</option>
+                        <option value="tamper">Тампер</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Единица измерения *</label>
+                    <select id="productUnit" required onchange="toggleWeightField()">
+                        <option value="">Выберите единицу</option>
+                        <option value="штука">Штука</option>
+                        <option value="вес">Вес</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="weightGroup" style="display: none;">
+                    <label>Вес упаковки (граммы) *</label>
+                    <input type="number" id="productWeight" min="1">
+                </div>
+
+                <div class="form-group">
+                    <label>Цена (рубли) *</label>
+                    <input type="number" id="productPrice" min="1" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Описание товара</label>
+                    <textarea id="productDescription" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Фото товара</label>
+                    <input type="file" id="productImage" accept="image/*" onchange="previewImage()">
+                    <div id="imagePreview" class="image-preview"></div>
+                </div>
+
+                <div class="form-buttons">
+                    <button onclick="saveProduct()">💾 Сохранить</button>
+                    <button onclick="cancelForm()" class="cancel-btn">Отмена</button>
+                </div>
+            </div>
+
+            <!-- Список товаров -->
+            <div id="productsList" class="products-list">
+                <div class="filter-section">
+                    <select id="filterCategory" onchange="filterProducts()">
+                        <option value="all">Все категории</option>
+                        <option value="new">Новинки от МАК ТАБАК</option>
+                        <option value="standard">Стандартные бленды</option>
+                        <option value="aromatic">Ароматизированные бленды</option>
+                        <option value="pipe">Трубочные бленды</option>
+                        <option value="gilzy">Сигаретные гильзы</option>
+                        <option value="custom">Собрать свой набор</option>
+                        <option value="mactabak">Продукция от МАКТАБАК</option>
+                        <option value="pipes">Курительные трубки</option>
+                        <option value="machines">Машинки для набивки</option>
+                        <option value="tea">Китайский чай</option>
+                        <option value="tamper">Тампер</option>
+                    </select>
+                </div>
+
+                <div id="productsTable" class="products-table"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Загрузчик -->
+    <div id="loader" class="loader" style="display: none;">
+        <div class="spinner"></div>
+        <p>Загрузка...</p>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>

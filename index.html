@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>МакТабак - Лучший табачный магазин</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <!-- Приветственный экран -->
+    <div id="welcomeScreen" class="welcome-screen">
+        <div class="welcome-content">
+            <h1 class="welcome-title">ДОБРО ПОЖАЛОВАТЬ!</h1>
+            <div class="logo-container">
+                <svg class="logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="100" cy="100" r="90" fill="#333"/>
+                    <text x="100" y="110" text-anchor="middle" font-size="24" fill="white">МАКТАБАК</text>
+                </svg>
+            </div>
+            <h2 class="welcome-subtitle">Лучший Табачный Магазин</h2>
+            <button class="catalog-btn" onclick="showCatalog()">🛒 Каталог</button>
+        </div>
+    </div>
+
+    <!-- Основной контейнер -->
+    <div id="mainContainer" style="display: none;">
+        <!-- Заголовок -->
+        <header class="header">
+            <button class="back-btn" id="backBtn" onclick="goBack()">←</button>
+            <h1 class="header-title">МАКТАБАК</h1>
+            <button class="search-btn" onclick="toggleSearch()">🔍</button>
+        </header>
+
+        <!-- Поле поиска -->
+        <div id="searchBar" class="search-bar" style="display: none;">
+            <input type="text" id="searchInput" placeholder="Поиск товаров..." oninput="searchProducts()">
+            <button onclick="clearSearch()">✖</button>
+        </div>
+
+        <!-- Категории и сортировка -->
+        <div class="controls">
+            <button class="sort-btn" onclick="showSortMenu()">↕️</button>
+            <div class="categories-scroll">
+                <div class="categories" id="categoriesContainer"></div>
+            </div>
+        </div>
+
+        <!-- Меню сортировки -->
+        <div id="sortMenu" class="sort-menu" style="display: none;">
+            <button onclick="sortProducts('default')">По умолчанию</button>
+            <button onclick="sortProducts('price_asc')">Цена ↑</button>
+            <button onclick="sortProducts('price_desc')">Цена ↓</button>
+            <button onclick="sortProducts('new')">Новинки</button>
+        </div>
+
+        <!-- Список товаров -->
+        <div class="products-container" id="productsContainer"></div>
+
+        <!-- Корзина -->
+        <div id="cartScreen" class="cart-screen" style="display: none;">
+            <div class="cart-header">
+                <button onclick="closeCart()">←</button>
+                <h2>Корзина</h2>
+                <button onclick="clearCart()">🗑️ Очистить</button>
+            </div>
+            <div id="cartItems" class="cart-items"></div>
+            <div id="emptyCart" class="empty-cart" style="display: none;">
+                <div class="pipe-icon">🚬</div>
+                <p>Корзина пуста</p>
+                <button onclick="closeCart()">Вернуться к покупкам</button>
+            </div>
+            <div id="cartSummary" class="cart-summary">
+                <div class="summary-row">
+                    <span>Итого:</span>
+                    <span id="cartTotal">0₽</span>
+                </div>
+                <button class="checkout-btn" onclick="showCheckout()">
+                    Оформить заказ <span id="checkoutTotal">0₽</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Оформление заказа -->
+        <div id="checkoutScreen" class="checkout-screen" style="display: none;">
+            <div class="checkout-header">
+                <button onclick="closeCheckout()">←</button>
+                <h2>Оформление заказа</h2>
+            </div>
+            <form id="checkoutForm" class="checkout-form">
+                <div class="form-group">
+                    <label>ФИО полностью *</label>
+                    <input type="text" id="fullName" required pattern="[А-Яа-яЁё\s]{10,}"
+                           placeholder="Иванов Иван Иванович">
+                    <span class="error-message"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Номер телефона *</label>
+                    <input type="tel" id="phone" required pattern="[+]?[0-9]{11,}"
+                           placeholder="+7 900 123 45 67">
+                    <span class="error-message"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" id="email" required
+                           placeholder="example@mail.ru">
+                    <span class="error-message"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Город *</label>
+                    <input type="text" id="city" required
+                           placeholder="Москва">
+                    <span class="error-message"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Регион/Область *</label>
+                    <input type="text" id="region" required
+                           placeholder="Московская область">
+                    <span class="error-message"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Адрес доставки *</label>
+                    <textarea id="address" required
+                              placeholder="ул. Ленина, д. 1, кв. 10"></textarea>
+                    <span class="error-message"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Способ доставки *</label>
+                    <select id="deliveryMethod" required onchange="updateDeliveryPrice()">
+                        <option value="">Выберите способ</option>
+                        <option value="pochta">Почта России - 500₽</option>
+                        <option value="sdek">СДЭК - 600₽</option>
+                    </select>
+                    <span class="error-message"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Комментарий к заказу</label>
+                    <textarea id="comment" placeholder="Дополнительная информация"></textarea>
+                </div>
+
+                <div class="checkout-summary">
+                    <div class="summary-row">
+                        <span>Товары:</span>
+                        <span id="checkoutSubtotal">0₽</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Доставка:</span>
+                        <span id="checkoutDelivery">0₽</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Итого:</span>
+                        <span id="checkoutFinalTotal">0₽</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-order-btn">
+                    Оплатить <span id="submitTotal">0₽</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Модальное окно товара -->
+        <div id="productModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close" onclick="closeProductModal()">&times;</span>
+                <img id="modalImage" src="" alt="">
+                <h3 id="modalTitle"></h3>
+                <p id="modalDescription"></p>
+                <div class="modal-price" id="modalPrice"></div>
+                <div class="modal-buttons">
+                    <button class="add-to-cart-btn" onclick="addToCartFromModal()">
+                        Добавить в корзину
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Кнопка корзины -->
+        <button id="cartBtn" class="cart-btn" onclick="showCart()">
+            🛒
+            <span id="cartCount" class="cart-count">0</span>
+        </button>
+    </div>
+
+    <!-- Загрузчик -->
+    <div id="loader" class="loader" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="products.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
