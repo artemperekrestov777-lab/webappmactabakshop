@@ -1,0 +1,17 @@
+node_modules/
+.env
+.env.local
+logs/
+*.log
+bot.lock
+data/qr/
+Бэкап/
+.DS_Store
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
