@@ -211,10 +211,7 @@ bot.onText(/\/admin(.*)/, async (msg, match) => {
     }
 
     // Отправка ссылки на админ-панель
-    const baseUrl = process.env.NODE_ENV === 'production'
-        ? process.env.WEBAPP_URL
-        : `http://localhost:${process.env.PORT || 3000}`;
-    const adminUrl = `${baseUrl}/admin.html?token=${generateAdminToken(userId)}`;
+    const adminUrl = `https://artemperekrestov777-lab.github.io/webappmactabakshop/admin.html?token=${generateAdminToken(userId)}`;
 
     await bot.sendMessage(chatId,
         '🔐 *Админ-панель*\n\n' +
