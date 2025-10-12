@@ -1,0 +1,55 @@
+[
+  {
+    "_id": "672ad123456789012345678a",
+    "name": "Табак для трубки Virginia",
+    "category": "new",
+    "unit": "weight",
+    "packageWeight": 50,
+    "price": 1200,
+    "imageUrl": "/images/virginia.png",
+    "createdAt": "2024-11-05T10:00:00.000Z",
+    "updatedAt": "2024-11-05T10:00:00.000Z"
+  },
+  {
+    "_id": "672ad123456789012345678b",
+    "name": "Курительная трубка Classic",
+    "category": "pipes",
+    "unit": "piece",
+    "price": 3500,
+    "imageUrl": "/images/pipe-classic.png",
+    "createdAt": "2024-11-05T11:00:00.000Z",
+    "updatedAt": "2024-11-05T11:00:00.000Z"
+  },
+  {
+    "_id": "672ad123456789012345678c",
+    "name": "Ароматный табак Cherry",
+    "category": "aromatic",
+    "unit": "weight",
+    "packageWeight": 100,
+    "price": 1800,
+    "imageUrl": "/images/cherry.png",
+    "createdAt": "2024-11-05T12:00:00.000Z",
+    "updatedAt": "2024-11-05T12:00:00.000Z"
+  },
+  {
+    "_id": "672ad123456789012345678d",
+    "name": "Стандартный табак English",
+    "category": "standard",
+    "unit": "weight",
+    "packageWeight": 50,
+    "price": 1400,
+    "imageUrl": "/images/english.png",
+    "createdAt": "2024-11-05T13:00:00.000Z",
+    "updatedAt": "2024-11-05T13:00:00.000Z"
+  },
+  {
+    "_id": "672ad123456789012345678e",
+    "name": "Машинка для набивки Pro",
+    "category": "machines",
+    "unit": "piece",
+    "price": 2500,
+    "imageUrl": "/images/machine-pro.png",
+    "createdAt": "2024-11-05T14:00:00.000Z",
+    "updatedAt": "2024-11-05T14:00:00.000Z"
+  }
+]

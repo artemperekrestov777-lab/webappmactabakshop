@@ -439,6 +439,9 @@
         // API URL (используем ваш сервер)
         const API_URL = 'http://85.198.83.41:3000';
 
+        // Резервный способ загрузки товаров из GitHub
+        const GITHUB_PRODUCTS_URL = 'https://artemperekrestov777-lab.github.io/webappmactabakshop/products.json';
+
         // Функция для показа уведомлений
         function showAlert(message, type = 'success') {
             const alertContainer = document.getElementById('alertContainer');
@@ -559,35 +562,59 @@
         // Загрузка товаров
         async function loadProducts() {
             try {
-                console.log('Начинаем загрузку товаров...');
-                const response = await fetch(`${API_URL}/api/admin/products`, {
-                    headers: {
-                        'Authorization': `Bearer ${initData}`,
-                        'Content-Type': 'application/json'
+                console.log('Начинаем загрузку товаров с сервера...');
+
+                // Пробуем загрузить с сервера
+                try {
+                    const response = await fetch(`${API_URL}/api/admin/products`, {
+                        headers: {
+                            'Authorization': `Bearer ${initData}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    console.log('Ответ сервера:', response.status, response.statusText);
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        console.log('Данные с сервера:', result);
+
+                        // Извлекаем массив товаров из ответа
+                        allProducts = result.products || result || [];
+                        console.log('Товары загружены с сервера:', allProducts.length);
+
+                        if (allProducts.length > 0) {
+                            console.log('Пример товара:', allProducts[0]);
+                            populateProductSelects();
+                            return;
+                        }
                     }
-                });
+                } catch (serverError) {
+                    console.log('Сервер недоступен, пробуем GitHub:', serverError.message);
+                }
 
-                console.log('Ответ сервера:', response.status, response.statusText);
+                // Если сервер недоступен, загружаем с GitHub
+                console.log('Загружаем товары с GitHub...');
+                const githubResponse = await fetch(GITHUB_PRODUCTS_URL);
 
-                if (response.ok) {
-                    const result = await response.json();
-                    console.log('Данные с сервера:', result);
+                if (githubResponse.ok) {
+                    const githubProducts = await githubResponse.json();
+                    console.log('Данные с GitHub:', githubProducts);
 
-                    // Извлекаем массив товаров из ответа
-                    allProducts = result.products || result || [];
-                    console.log('Товары загружены:', allProducts.length);
+                    allProducts = Array.isArray(githubProducts) ? githubProducts : [];
+                    console.log('Товары загружены с GitHub:', allProducts.length);
 
                     if (allProducts.length > 0) {
-                        console.log('Пример товара:', allProducts[0]);
+                        console.log('Пример товара с GitHub:', allProducts[0]);
                     }
 
                     populateProductSelects();
                 } else {
-                    console.error('Ошибка ответа сервера:', response.status);
-                    throw new Error(`HTTP ${response.status}`);
+                    throw new Error('Не удалось загрузить товары ни с сервера, ни с GitHub');
                 }
+
             } catch (error) {
-                console.error('Ошибка загрузки товаров:', error);
+                console.error('Полная ошибка загрузки товаров:', error);
                 showAlert('Ошибка загрузки товаров: ' + error.message, 'error');
                 allProducts = [];
             }
