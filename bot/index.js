@@ -142,7 +142,7 @@ bot.onText(/\/start/, async (msg) => {
             inline_keyboard: [[
                 {
                     text: '🛒 Каталог',
-                    web_app: { url: 'https://artemperekrestov777-lab.github.io/webappmactabakshop/' }
+                    web_app: { url: 'https://artemperekrestov777-lab.github.io/webappmactabakshop/webapp/index.html' }
                 }
             ]]
         };
@@ -170,7 +170,7 @@ bot.onText(/\/start/, async (msg) => {
                             inline_keyboard: [[
                                 {
                                     text: '🛒 Вернуться в корзину',
-                                    web_app: { url: `${process.env.WEBAPP_URL}#cart` }
+                                    web_app: { url: 'https://artemperekrestov777-lab.github.io/webappmactabakshop/webapp/index.html#cart' }
                                 }
                             ]]
                         }
@@ -261,7 +261,7 @@ async function handleMessage(msg) {
         inline_keyboard: [[
             {
                 text: '🛒 Каталог',
-                web_app: { url: process.env.WEBAPP_URL }
+                web_app: { url: 'https://artemperekrestov777-lab.github.io/webappmactabakshop/webapp/index.html' }
             }
         ]]
     };
