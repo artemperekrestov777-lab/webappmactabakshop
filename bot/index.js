@@ -211,7 +211,7 @@ bot.onText(/\/admin(.*)/, async (msg, match) => {
     }
 
     // Отправка ссылки на админ-панель
-    const adminUrl = `https://artemperekrestov777-lab.github.io/webappmactabakshop/admin.html?token=${generateAdminToken(userId)}`;
+    const adminUrl = `https://artemperekrestov777-lab.github.io/webappmactabakshop/admin-telegram-webapp.html?token=${generateAdminToken(userId)}`;
 
     await bot.sendMessage(chatId,
         '🔐 *Админ-панель*\n\n' +
