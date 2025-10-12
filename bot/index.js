@@ -225,7 +225,7 @@ bot.onText(/\/admin(.*)/, async (msg, match) => {
                 inline_keyboard: [[
                     {
                         text: '⚙️ Открыть админ-панель',
-                        url: adminUrl
+                        web_app: { url: adminUrl }
                     }
                 ]]
             }
