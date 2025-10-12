@@ -555,9 +555,13 @@
 
             if (!allProducts || !Array.isArray(allProducts) || allProducts.length === 0) {
                 console.log('Товары не загружены, загружаем...');
+                editSelect.innerHTML = '<option value="">Товары загружаются...</option>';
+                deleteSelect.innerHTML = '<option value="">Товары загружаются...</option>';
                 loadProducts();
                 return;
             }
+
+            console.log('Заполняем товары, найдено:', allProducts.length);
 
             const options = '<option value="">Выберите товар...</option>' +
                 allProducts.map(product =>
