@@ -440,7 +440,54 @@
         const API_URL = 'http://85.198.83.41:3000';
 
         // Резервный способ загрузки товаров из GitHub
-        const GITHUB_PRODUCTS_URL = 'https://artemperekrestov777-lab.github.io/webappmactabakshop/products.json';
+        const GITHUB_PRODUCTS_URL = 'https://artemperekrestov777-lab.github.io/webappmactabakshop/webapp/products.json';
+
+        // Заглушка с тестовыми данными если ничего не работает
+        const FALLBACK_PRODUCTS = [
+            {
+                "_id": "672ad123456789012345678a",
+                "name": "Табак для трубки Virginia",
+                "category": "new",
+                "unit": "weight",
+                "packageWeight": 50,
+                "price": 1200,
+                "imageUrl": "/images/virginia.png"
+            },
+            {
+                "_id": "672ad123456789012345678b",
+                "name": "Курительная трубка Classic",
+                "category": "pipes",
+                "unit": "piece",
+                "price": 3500,
+                "imageUrl": "/images/pipe-classic.png"
+            },
+            {
+                "_id": "672ad123456789012345678c",
+                "name": "Ароматный табак Cherry",
+                "category": "aromatic",
+                "unit": "weight",
+                "packageWeight": 100,
+                "price": 1800,
+                "imageUrl": "/images/cherry.png"
+            },
+            {
+                "_id": "672ad123456789012345678d",
+                "name": "Стандартный табак English",
+                "category": "standard",
+                "unit": "weight",
+                "packageWeight": 50,
+                "price": 1400,
+                "imageUrl": "/images/english.png"
+            },
+            {
+                "_id": "672ad123456789012345678e",
+                "name": "Машинка для набивки Pro",
+                "category": "machines",
+                "unit": "piece",
+                "price": 2500,
+                "imageUrl": "/images/machine-pro.png"
+            }
+        ];
 
         // Функция для показа уведомлений
         function showAlert(message, type = 'success') {
@@ -593,30 +640,41 @@
                     console.log('Сервер недоступен, пробуем GitHub:', serverError.message);
                 }
 
-                // Если сервер недоступен, загружаем с GitHub
+                // Если сервер недоступен, пробуем загрузить с GitHub
                 console.log('Загружаем товары с GitHub...');
-                const githubResponse = await fetch(GITHUB_PRODUCTS_URL);
+                try {
+                    const githubResponse = await fetch(GITHUB_PRODUCTS_URL);
 
-                if (githubResponse.ok) {
-                    const githubProducts = await githubResponse.json();
-                    console.log('Данные с GitHub:', githubProducts);
+                    if (githubResponse.ok) {
+                        const githubProducts = await githubResponse.json();
+                        console.log('Данные с GitHub:', githubProducts);
 
-                    allProducts = Array.isArray(githubProducts) ? githubProducts : [];
-                    console.log('Товары загружены с GitHub:', allProducts.length);
+                        allProducts = Array.isArray(githubProducts) ? githubProducts : [];
+                        console.log('Товары загружены с GitHub:', allProducts.length);
 
-                    if (allProducts.length > 0) {
-                        console.log('Пример товара с GitHub:', allProducts[0]);
+                        if (allProducts.length > 0) {
+                            console.log('Пример товара с GitHub:', allProducts[0]);
+                            populateProductSelects();
+                            return;
+                        }
                     }
-
-                    populateProductSelects();
-                } else {
-                    throw new Error('Не удалось загрузить товары ни с сервера, ни с GitHub');
+                } catch (githubError) {
+                    console.log('GitHub тоже недоступен, используем заглушку:', githubError.message);
                 }
 
+                // Если и GitHub недоступен, используем заглушку
+                console.log('Используем встроенные тестовые данные...');
+                allProducts = FALLBACK_PRODUCTS;
+                console.log('Загружено товаров из заглушки:', allProducts.length);
+                showAlert('Используются тестовые данные (сервер недоступен)', 'error');
+                populateProductSelects();
+
             } catch (error) {
-                console.error('Полная ошибка загрузки товаров:', error);
-                showAlert('Ошибка загрузки товаров: ' + error.message, 'error');
-                allProducts = [];
+                console.error('Критическая ошибка загрузки товаров:', error);
+                console.log('Используем fallback данные...');
+                allProducts = FALLBACK_PRODUCTS;
+                showAlert('Используются тестовые данные (критическая ошибка)', 'error');
+                populateProductSelects();
             }
         }
 
