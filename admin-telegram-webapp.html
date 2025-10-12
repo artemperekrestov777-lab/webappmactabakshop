@@ -559,6 +559,7 @@
         // Загрузка товаров
         async function loadProducts() {
             try {
+                console.log('Начинаем загрузку товаров...');
                 const response = await fetch(`${API_URL}/api/admin/products`, {
                     headers: {
                         'Authorization': `Bearer ${initData}`,
@@ -566,52 +567,108 @@
                     }
                 });
 
+                console.log('Ответ сервера:', response.status, response.statusText);
+
                 if (response.ok) {
                     const result = await response.json();
-                    allProducts = result.products || result;
+                    console.log('Данные с сервера:', result);
+
+                    // Извлекаем массив товаров из ответа
+                    allProducts = result.products || result || [];
+                    console.log('Товары загружены:', allProducts.length);
+
+                    if (allProducts.length > 0) {
+                        console.log('Пример товара:', allProducts[0]);
+                    }
+
                     populateProductSelects();
+                } else {
+                    console.error('Ошибка ответа сервера:', response.status);
+                    throw new Error(`HTTP ${response.status}`);
                 }
             } catch (error) {
                 console.error('Ошибка загрузки товаров:', error);
-                showAlert('Ошибка загрузки товаров', 'error');
+                showAlert('Ошибка загрузки товаров: ' + error.message, 'error');
+                allProducts = [];
             }
         }
 
         // Загрузка товаров по выбранной категории
-        function loadProductsByCategory(mode) {
+        async function loadProductsByCategory(mode) {
+            console.log('loadProductsByCategory вызвана с mode:', mode);
+
             const categorySelect = document.getElementById(mode + 'CategorySelect');
             const productSelectGroup = document.getElementById(mode + 'ProductSelectGroup');
             const productSelect = document.getElementById(mode + 'ProductSelect');
 
+            console.log('Найдены элементы:', {
+                categorySelect: !!categorySelect,
+                productSelectGroup: !!productSelectGroup,
+                productSelect: !!productSelect
+            });
+
+            if (!categorySelect || !productSelectGroup || !productSelect) {
+                console.error('Не найдены необходимые элементы для', mode);
+                return;
+            }
+
             const selectedCategory = categorySelect.value;
+            console.log('Выбранная категория:', selectedCategory);
 
             if (!selectedCategory) {
                 productSelectGroup.style.display = 'none';
+                console.log('Категория не выбрана, скрываем группу товаров');
                 return;
             }
 
+            // Проверяем, загружены ли товары
             if (!allProducts || !Array.isArray(allProducts) || allProducts.length === 0) {
                 console.log('Товары не загружены, загружаем...');
-                loadProducts();
+                productSelect.innerHTML = '<option value="">Товары загружаются...</option>';
+                productSelectGroup.style.display = 'block';
+
+                // Ждем загрузки товаров и повторно вызываем функцию
+                await loadProducts();
+                if (allProducts && allProducts.length > 0) {
+                    loadProductsByCategory(mode);
+                } else {
+                    productSelect.innerHTML = '<option value="">Ошибка загрузки товаров</option>';
+                }
                 return;
             }
+
+            console.log('Всего товаров загружено:', allProducts.length);
+            console.log('Список всех товаров:', allProducts.map(p => ({ name: p.name, category: p.category })));
 
             // Фильтруем товары по выбранной категории
             const filteredProducts = allProducts.filter(product => product.category === selectedCategory);
 
             console.log(`Найдено товаров в категории "${selectedCategory}":`, filteredProducts.length);
+            console.log('Отфильтрованные товары:', filteredProducts);
+
+            // Очищаем и заполняем список товаров
+            productSelect.innerHTML = '';
 
             if (filteredProducts.length === 0) {
                 productSelect.innerHTML = '<option value="">В этой категории нет товаров</option>';
+                console.log('В категории нет товаров');
             } else {
-                const options = '<option value="">Выберите товар...</option>' +
-                    filteredProducts.map(product =>
-                        `<option value="${product.id || product._id}">${product.name} - ${product.price}₽</option>`
-                    ).join('');
-                productSelect.innerHTML = options;
+                const options = ['<option value="">Выберите товар...</option>'];
+                filteredProducts.forEach(product => {
+                    const productId = product._id || product.id;
+                    options.push(`<option value="${productId}">${product.name} - ${product.price}₽</option>`);
+                });
+                productSelect.innerHTML = options.join('');
+                console.log('Добавлено опций:', options.length - 1);
             }
 
+            // Показываем группу товаров
             productSelectGroup.style.display = 'block';
+            console.log('Группа товаров отображена, display:', productSelectGroup.style.display);
+
+            // Дополнительная проверка видимости
+            const computedStyle = window.getComputedStyle(productSelectGroup);
+            console.log('Computed display:', computedStyle.display);
         }
 
         // Заполнение выпадающих списков товаров (старая функция для совместимости)
@@ -738,24 +795,31 @@
 
         // Обработчик выбора товара для удаления
         document.getElementById('deleteProductSelect').addEventListener('change', function() {
+            console.log('Обработчик выбора товара для удаления');
             const productId = this.value;
             const deleteInfo = document.getElementById('deleteProductInfo');
 
+            console.log('Выбран товар для удаления:', productId);
+
             if (!productId) {
                 deleteInfo.style.display = 'none';
+                console.log('Товар не выбран, скрываем информацию');
                 return;
             }
 
             const product = allProducts.find(p => (p.id || p._id) === productId);
+            console.log('Найден товар:', product);
+
             if (product) {
                 document.getElementById('deleteProductDetails').innerHTML = `
                     <p><strong>Название:</strong> ${product.name}</p>
-                    <p><strong>Категория:</strong> ${getCategoryName(product.category)}</p>
+                    <p><strong>Категория:</strong> ${getCategoryDisplayName(product.category)}</p>
                     <p><strong>Цена:</strong> ${product.price}₽</p>
                     <p><strong>Единица:</strong> ${product.unit === 'weight' ? 'Вес (' + (product.packageWeight || 0) + 'г)' : 'Штука'}</p>
                 `;
                 deleteInfo.style.display = 'block';
                 deleteInfo.dataset.productId = productId;
+                console.log('Информация о товаре отображена');
             }
         });
 
@@ -797,15 +861,27 @@
             }
         }
 
-        // Получение названия категории
-        function getCategoryName(category) {
+        // Получение названия категории для отображения
+        function getCategoryDisplayName(category) {
             const categories = {
-                'cigarettes': '🚬 Сигареты',
-                'vapes': '💨 Вейпы',
-                'tobacco': '🍃 Табак',
-                'accessories': '🔧 Аксессуары'
+                'new': '🆕 Новинки от МАК ТАБАК',
+                'standard': '📋 Стандартные бленды',
+                'aromatic': '🌸 Ароматизированные бленды',
+                'pipe': '🚬 Трубочные бленды',
+                'gilzy': '📦 Сигаретные гильзы',
+                'custom': '🎯 Собрать свой набор',
+                'mactabak': '🏭 Продукция от МАКТАБАК',
+                'pipes': '🚿 Курительные трубки',
+                'machines': '⚙️ Машинки для набивки',
+                'tea': '🍵 Китайский чай',
+                'tamper': '🔨 Тампер'
             };
             return categories[category] || category;
+        }
+
+        // Старая функция для совместимости
+        function getCategoryName(category) {
+            return getCategoryDisplayName(category);
         }
 
         // Кнопка "Назад" в Telegram
