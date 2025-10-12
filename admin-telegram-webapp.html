@@ -548,6 +548,17 @@
             const editSelect = document.getElementById('editProductSelect');
             const deleteSelect = document.getElementById('deleteProductSelect');
 
+            if (!editSelect || !deleteSelect) {
+                console.error('Элементы выбора товаров не найдены');
+                return;
+            }
+
+            if (!allProducts || !Array.isArray(allProducts) || allProducts.length === 0) {
+                console.log('Товары не загружены, загружаем...');
+                loadProducts();
+                return;
+            }
+
             const options = '<option value="">Выберите товар...</option>' +
                 allProducts.map(product =>
                     `<option value="${product.id || product._id}">${product.name} - ${product.price}₽</option>`
