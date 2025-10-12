@@ -195,27 +195,6 @@
 
         <div id="alertContainer"></div>
 
-        <!-- Статистика -->
-        <div class="section">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="totalOrders">0</div>
-                    <div class="stat-label">Всего заказов</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="todayOrders">0</div>
-                    <div class="stat-label">Заказов сегодня</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="totalRevenue">0₽</div>
-                    <div class="stat-label">Общая выручка</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="totalProducts">0</div>
-                    <div class="stat-label">Товаров</div>
-                </div>
-            </div>
-        </div>
 
         <!-- Добавление товара -->
         <div class="section">
@@ -237,16 +216,25 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Цена (₽)</label>
+                        <label>Единица измерения</label>
+                        <select name="unit" id="unitSelect" required onchange="toggleWeightField()">
+                            <option value="">Выберите единицу</option>
+                            <option value="piece">Штука</option>
+                            <option value="weight">Вес</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="weightGroup" style="display:none;">
+                        <label>Вес упаковки (г)</label>
+                        <input type="number" name="packageWeight" min="0" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Стоимость товара (₽)</label>
                         <input type="number" name="price" min="0" required>
                     </div>
                     <div class="form-group">
-                        <label>Количество на складе</label>
-                        <input type="number" name="stock" min="0" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Описание</label>
-                        <textarea name="description" rows="3"></textarea>
+                        <label>Фото товара (PNG)</label>
+                        <input type="file" name="photo" accept=".png" onchange="previewImage(event)">
+                        <div id="imagePreview" style="margin-top:10px;"></div>
                     </div>
                     <button type="submit" class="btn btn-primary">Добавить товар</button>
                 </form>
@@ -309,25 +297,37 @@
             }
         }
 
-        // Загрузка статистики
-        async function loadStats() {
-            try {
-                const response = await fetch(`${API_URL}/api/admin/stats`, {
-                    headers: {
-                        'Authorization': `Bearer ${initData}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
+        // Переключение поля веса
+        function toggleWeightField() {
+            const unitSelect = document.getElementById('unitSelect');
+            const weightGroup = document.getElementById('weightGroup');
+            const weightInput = weightGroup.querySelector('input');
 
-                if (response.ok) {
-                    const stats = await response.json();
-                    document.getElementById('totalOrders').textContent = stats.totalOrders || 0;
-                    document.getElementById('todayOrders').textContent = stats.todayOrders || 0;
-                    document.getElementById('totalRevenue').textContent = `${stats.totalRevenue || 0}₽`;
-                    document.getElementById('totalProducts').textContent = stats.totalProducts || 0;
-                }
-            } catch (error) {
-                console.error('Ошибка загрузки статистики:', error);
+            if (unitSelect.value === 'weight') {
+                weightGroup.style.display = 'block';
+                weightInput.required = true;
+            } else {
+                weightGroup.style.display = 'none';
+                weightInput.required = false;
+                weightInput.value = '';
+            }
+        }
+
+        // Предпросмотр изображения
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById('imagePreview');
+
+            if (file && file.type === 'image/png') {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" style="max-width:200px;max-height:200px;border-radius:5px;">`;
+                };
+                reader.readAsDataURL(file);
+            } else if (file) {
+                showAlert('Пожалуйста, загрузите изображение в формате PNG', 'error');
+                event.target.value = '';
+                preview.innerHTML = '';
             }
         }
 
@@ -365,13 +365,13 @@
                 <div class="product-item">
                     <div class="product-info">
                         <div class="product-name">${product.name}</div>
-                        <div class="product-price">${product.price}₽ • В наличии: ${product.stock}</div>
+                        <div class="product-price">${product.price}₽ • ${product.unit === 'weight' ? 'Вес: ' + (product.packageWeight || 0) + 'г' : 'Штука'}</div>
                     </div>
                     <div class="product-actions">
-                        <button class="btn btn-small btn-primary" onclick="editProduct('${product.id}')">
-                            Изменить
+                        <button class="btn btn-small btn-primary" onclick="editProduct('${product.id || product._id}')">
+                            Редактировать
                         </button>
-                        <button class="btn btn-small btn-danger" onclick="deleteProduct('${product.id}')">
+                        <button class="btn btn-small btn-danger" onclick="deleteProduct('${product.id || product._id}')">
                             Удалить
                         </button>
                     </div>
@@ -379,34 +379,91 @@
             `).join('');
         }
 
-        // Добавление товара
+        // Добавление/редактирование товара
         document.getElementById('addProductForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const editId = submitBtn.dataset.editId;
+            const isEdit = !!editId;
+
             const formData = new FormData(e.target);
-            const product = Object.fromEntries(formData);
+            const photoFile = formData.get('photo');
 
-            try {
-                const response = await fetch(`${API_URL}/api/admin/product`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${initData}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(product)
-                });
+            // Подготовка данных товара
+            const product = {
+                name: formData.get('name'),
+                category: formData.get('category'),
+                unit: formData.get('unit'),
+                packageWeight: formData.get('unit') === 'weight' ? formData.get('packageWeight') : null,
+                price: formData.get('price')
+            };
 
-                if (response.ok) {
-                    showAlert('Товар успешно добавлен');
-                    e.target.reset();
-                    loadProducts();
-                    loadStats();
-                    tg.HapticFeedback.impactOccurred('medium');
-                } else {
-                    throw new Error('Ошибка добавления товара');
+            // Если есть фото, конвертируем в base64
+            if (photoFile && photoFile.size > 0) {
+                const reader = new FileReader();
+                reader.onload = async function(event) {
+                    product.photo = event.target.result;
+
+                    try {
+                        const url = isEdit ? `${API_URL}/api/admin/product/${editId}` : `${API_URL}/api/admin/product`;
+                        const method = isEdit ? 'PUT' : 'POST';
+
+                        const response = await fetch(url, {
+                            method: method,
+                            headers: {
+                                'Authorization': `Bearer ${initData}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(product)
+                        });
+
+                        if (response.ok) {
+                            showAlert(isEdit ? 'Товар успешно обновлен' : 'Товар успешно добавлен');
+                            e.target.reset();
+                            document.getElementById('imagePreview').innerHTML = '';
+                            submitBtn.textContent = 'Добавить товар';
+                            delete submitBtn.dataset.editId;
+                            loadProducts();
+                            syncWithGitHub(); // Автоматическая синхронизация
+                            tg.HapticFeedback.impactOccurred('medium');
+                        } else {
+                            throw new Error(isEdit ? 'Ошибка обновления товара' : 'Ошибка добавления товара');
+                        }
+                    } catch (error) {
+                        showAlert(isEdit ? 'Ошибка при обновлении товара' : 'Ошибка при добавлении товара', 'error');
+                    }
+                };
+                reader.readAsDataURL(photoFile);
+            } else {
+                // Если фото нет, отправляем без него
+                try {
+                    const url = isEdit ? `${API_URL}/api/admin/product/${editId}` : `${API_URL}/api/admin/product`;
+                    const method = isEdit ? 'PUT' : 'POST';
+
+                    const response = await fetch(url, {
+                        method: method,
+                        headers: {
+                            'Authorization': `Bearer ${initData}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(product)
+                    });
+
+                    if (response.ok) {
+                        showAlert(isEdit ? 'Товар успешно обновлен' : 'Товар успешно добавлен');
+                        e.target.reset();
+                        submitBtn.textContent = 'Добавить товар';
+                        delete submitBtn.dataset.editId;
+                        loadProducts();
+                        syncWithGitHub(); // Автоматическая синхронизация
+                        tg.HapticFeedback.impactOccurred('medium');
+                    } else {
+                        throw new Error(isEdit ? 'Ошибка обновления товара' : 'Ошибка добавления товара');
+                    }
+                } catch (error) {
+                    showAlert(isEdit ? 'Ошибка при обновлении товара' : 'Ошибка при добавлении товара', 'error');
                 }
-            } catch (error) {
-                showAlert('Ошибка при добавлении товара', 'error');
             }
         });
 
@@ -425,7 +482,7 @@
                 if (response.ok) {
                     showAlert('Товар удален');
                     loadProducts();
-                    loadStats();
+                    syncWithGitHub(); // Автоматическая синхронизация
                     tg.HapticFeedback.impactOccurred('light');
                 } else {
                     throw new Error('Ошибка удаления');
@@ -451,13 +508,79 @@
             tg.HapticFeedback.impactOccurred('medium');
         });
 
+        // Функция показа модального окна редактирования
+        function showEditModal(product) {
+            // Заполняем форму добавления данными товара
+            const form = document.getElementById('addProductForm');
+            form.querySelector('[name="name"]').value = product.name || '';
+            form.querySelector('[name="category"]').value = product.category || '';
+            form.querySelector('[name="unit"]').value = product.unit || '';
+            form.querySelector('[name="price"]').value = product.price || '';
+
+            // Показываем поле веса если единица - вес
+            if (product.unit === 'weight') {
+                document.getElementById('weightGroup').style.display = 'block';
+                form.querySelector('[name="packageWeight"]').value = product.packageWeight || '';
+            }
+
+            // Меняем текст кнопки
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.textContent = 'Сохранить изменения';
+            submitBtn.dataset.editId = product.id || product._id;
+
+            // Прокручиваем к форме
+            form.scrollIntoView({ behavior: 'smooth' });
+            tg.HapticFeedback.impactOccurred('light');
+        }
+
+        // Редактирование товара
+        async function editProduct(id) {
+            const product = await getProductById(id);
+            if (product) {
+                showEditModal(product);
+            }
+        }
+
+        // Получение товара по ID
+        async function getProductById(id) {
+            try {
+                const response = await fetch(`${API_URL}/api/admin/product/${id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${initData}`
+                    }
+                });
+                if (response.ok) {
+                    return await response.json();
+                }
+            } catch (error) {
+                console.error('Ошибка получения товара:', error);
+            }
+            return null;
+        }
+
+        // Синхронизация с GitHub
+        async function syncWithGitHub() {
+            try {
+                const response = await fetch(`${API_URL}/api/admin/sync`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${initData}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (response.ok) {
+                    console.log('Синхронизация с GitHub выполнена');
+                }
+            } catch (error) {
+                console.error('Ошибка синхронизации:', error);
+            }
+        }
+
         // Инициализация
-        loadStats();
         loadProducts();
 
         // Автообновление каждые 30 секунд
         setInterval(() => {
-            loadStats();
             loadProducts();
         }, 30000);
     </script>
