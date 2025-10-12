@@ -298,6 +298,23 @@
                 <h2 class="section-title">Редактировать товар</h2>
                 <div class="product-form">
                     <div class="form-group">
+                        <label>Выберите категорию</label>
+                        <select id="editCategorySelect" onchange="loadProductsByCategory('edit')">
+                            <option value="">Выберите категорию...</option>
+                            <option value="new">🆕 Новинки от МАК ТАБАК</option>
+                            <option value="standard">📋 Стандартные бленды</option>
+                            <option value="aromatic">🌸 Ароматизированные бленды</option>
+                            <option value="pipe">🚬 Трубочные бленды</option>
+                            <option value="gilzy">📦 Сигаретные гильзы</option>
+                            <option value="custom">🎯 Собрать свой набор</option>
+                            <option value="mactabak">🏭 Продукция от МАКТАБАК</option>
+                            <option value="pipes">🚿 Курительные трубки</option>
+                            <option value="machines">⚙️ Машинки для набивки</option>
+                            <option value="tea">🍵 Китайский чай</option>
+                            <option value="tamper">🔨 Тампер</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="editProductSelectGroup" style="display:none;">
                         <label>Выберите товар для редактирования</label>
                         <select id="editProductSelect" onchange="loadProductForEdit()">
                             <option value="">Выберите товар...</option>
@@ -360,6 +377,23 @@
                 <h2 class="section-title">Удалить товар</h2>
                 <div class="product-form">
                     <div class="form-group">
+                        <label>Выберите категорию</label>
+                        <select id="deleteCategorySelect" onchange="loadProductsByCategory('delete')">
+                            <option value="">Выберите категорию...</option>
+                            <option value="new">🆕 Новинки от МАК ТАБАК</option>
+                            <option value="standard">📋 Стандартные бленды</option>
+                            <option value="aromatic">🌸 Ароматизированные бленды</option>
+                            <option value="pipe">🚬 Трубочные бленды</option>
+                            <option value="gilzy">📦 Сигаретные гильзы</option>
+                            <option value="custom">🎯 Собрать свой набор</option>
+                            <option value="mactabak">🏭 Продукция от МАКТАБАК</option>
+                            <option value="pipes">🚿 Курительные трубки</option>
+                            <option value="machines">⚙️ Машинки для набивки</option>
+                            <option value="tea">🍵 Китайский чай</option>
+                            <option value="tamper">🔨 Тампер</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="deleteProductSelectGroup" style="display:none;">
                         <label>Выберите товар для удаления</label>
                         <select id="deleteProductSelect">
                             <option value="">Выберите товар...</option>
@@ -543,33 +577,47 @@
             }
         }
 
-        // Заполнение выпадающих списков товаров
-        function populateProductSelects() {
-            const editSelect = document.getElementById('editProductSelect');
-            const deleteSelect = document.getElementById('deleteProductSelect');
+        // Загрузка товаров по выбранной категории
+        function loadProductsByCategory(mode) {
+            const categorySelect = document.getElementById(mode + 'CategorySelect');
+            const productSelectGroup = document.getElementById(mode + 'ProductSelectGroup');
+            const productSelect = document.getElementById(mode + 'ProductSelect');
 
-            if (!editSelect || !deleteSelect) {
-                console.error('Элементы выбора товаров не найдены');
+            const selectedCategory = categorySelect.value;
+
+            if (!selectedCategory) {
+                productSelectGroup.style.display = 'none';
                 return;
             }
 
             if (!allProducts || !Array.isArray(allProducts) || allProducts.length === 0) {
                 console.log('Товары не загружены, загружаем...');
-                editSelect.innerHTML = '<option value="">Товары загружаются...</option>';
-                deleteSelect.innerHTML = '<option value="">Товары загружаются...</option>';
                 loadProducts();
                 return;
             }
 
-            console.log('Заполняем товары, найдено:', allProducts.length);
+            // Фильтруем товары по выбранной категории
+            const filteredProducts = allProducts.filter(product => product.category === selectedCategory);
 
-            const options = '<option value="">Выберите товар...</option>' +
-                allProducts.map(product =>
-                    `<option value="${product.id || product._id}">${product.name} - ${product.price}₽</option>`
-                ).join('');
+            console.log(`Найдено товаров в категории "${selectedCategory}":`, filteredProducts.length);
 
-            editSelect.innerHTML = options;
-            deleteSelect.innerHTML = options;
+            if (filteredProducts.length === 0) {
+                productSelect.innerHTML = '<option value="">В этой категории нет товаров</option>';
+            } else {
+                const options = '<option value="">Выберите товар...</option>' +
+                    filteredProducts.map(product =>
+                        `<option value="${product.id || product._id}">${product.name} - ${product.price}₽</option>`
+                    ).join('');
+                productSelect.innerHTML = options;
+            }
+
+            productSelectGroup.style.display = 'block';
+        }
+
+        // Заполнение выпадающих списков товаров (старая функция для совместимости)
+        function populateProductSelects() {
+            console.log('populateProductSelects() вызвана для совместимости');
+            // Эта функция теперь не используется, так как товары загружаются по категориям
         }
 
         // Загрузка товара для редактирования
