@@ -1,0 +1,298 @@
+const TelegramBot = require('node-telegram-bot-api');
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const compression = require('compression');
+const morgan = require('morgan');
+const bodyParser = require('body-parser');
+const { RateLimiterMemory } = require('rate-limiter-flexible');
+const path = require('path');
+const fs = require('fs');
+require('dotenv').config();
+
+// Инициализация
+const token = process.env.BOT_TOKEN;
+const bot = new TelegramBot(token, { polling: true });
+const app = express();
+
+// Защита от множественного запуска
+const lockFile = path.join(__dirname, 'bot.lock');
+if (fs.existsSync(lockFile)) {
+    console.log('Бот уже запущен в другом процессе');
+    process.exit(0);
+}
+fs.writeFileSync(lockFile, process.pid.toString());
+
+process.on('exit', () => {
+    if (fs.existsSync(lockFile)) {
+        fs.unlinkSync(lockFile);
+    }
+});
+
+process.on('SIGINT', () => {
+    if (fs.existsSync(lockFile)) {
+        fs.unlinkSync(lockFile);
+    }
+    process.exit(0);
+});
+
+// Middleware для Express
+app.use(helmet({
+    contentSecurityPolicy: false
+}));
+app.use(compression());
+app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Логирование
+if (!fs.existsSync(path.join(__dirname, 'logs'))) {
+    fs.mkdirSync(path.join(__dirname, 'logs'), { recursive: true });
+}
+app.use(morgan('combined', {
+    stream: fs.createWriteStream(path.join(__dirname, 'logs/access.log'), { flags: 'a' })
+}));
+
+// Rate limiting
+const rateLimiter = new RateLimiterMemory({
+    points: 10,
+    duration: 1,
+});
+
+const antiFloodLimiter = new RateLimiterMemory({
+    points: 30,
+    duration: 60,
+});
+
+// Защита от флуда
+bot.on('message', async (msg) => {
+    const chatId = msg.chat.id;
+    const userId = msg.from.id;
+
+    try {
+        await rateLimiter.consume(userId);
+        await antiFloodLimiter.consume(userId);
+    } catch (rejRes) {
+        console.log(`Превышен лимит сообщений для пользователя ${userId}`);
+        return;
+    }
+
+    // Обработка сообщений
+    handleMessage(msg);
+});
+
+// Обработчик команды /start
+bot.onText(/\/start/, async (msg) => {
+    const chatId = msg.chat.id;
+    const userId = msg.from.id;
+
+    try {
+        // Приветственное сообщение с логотипом
+        const welcomeMessage = `
+🛍️ *ДОБРО ПОЖАЛОВАТЬ!*
+
+*МАКТАБАК*
+*Лучший Табачный Магазин*
+
+Рады приветствовать вас в нашем магазине!
+У нас вы найдете широкий ассортимент табачной продукции высшего качества.
+
+Нажмите кнопку "Каталог" чтобы начать покупки.
+`;
+
+        const keyboard = {
+            inline_keyboard: [[
+                {
+                    text: '🛒 Каталог',
+                    web_app: { url: 'https://artemperekrestov777-lab.github.io/webappmactabakshop/?v=' + Date.now() }
+                }
+            ]]
+        };
+
+        await bot.sendMessage(chatId, welcomeMessage, {
+            parse_mode: 'Markdown',
+            reply_markup: keyboard
+        });
+
+    } catch (error) {
+        console.error('Ошибка при обработке /start:', error);
+        await bot.sendMessage(chatId, 'Произошла ошибка. Попробуйте позже.');
+    }
+});
+
+// Обработчик команды /admin
+bot.onText(/\/admin(.*)/, async (msg, match) => {
+    const chatId = msg.chat.id;
+    const userId = msg.from.id;
+    const fullCommand = match[1].trim();
+
+    console.log(`Admin command received from user ${userId}, full command: "${fullCommand}"`);
+
+    // Проверка прав администратора
+    if (userId !== parseInt(process.env.ADMIN_ID)) {
+        await bot.sendMessage(chatId, 'У вас нет прав администратора.');
+        return;
+    }
+
+    // Проверка пароля
+    if (!fullCommand) {
+        await bot.sendMessage(chatId, 'Введите пароль: /admin <пароль>');
+        return;
+    }
+
+    if (fullCommand !== process.env.ADMIN_PASSWORD) {
+        await bot.sendMessage(chatId, 'Неверный пароль.');
+        return;
+    }
+
+    // Отправка ссылки на админ-панель
+    const adminUrl = `https://artemperekrestov777-lab.github.io/webappmactabakshop/admin-telegram-webapp.html?token=${generateAdminToken(userId)}`;
+
+    await bot.sendMessage(chatId,
+        '🔐 *Админ-панель*\\n\\n' +
+        'Нажмите кнопку ниже для доступа к панели управления товарами.',
+        {
+            parse_mode: 'Markdown',
+            reply_markup: {
+                inline_keyboard: [[
+                    {
+                        text: '⚙️ Открыть админ-панель',
+                        web_app: { url: adminUrl }
+                    }
+                ]]
+            }
+        }
+    );
+});
+
+// Функция генерации токена для админа
+function generateAdminToken(userId) {
+    const jwt = require('jsonwebtoken');
+    return jwt.sign(
+        { userId, role: 'admin', exp: Math.floor(Date.now() / 1000) + (60 * 60) },
+        process.env.JWT_SECRET
+    );
+}
+
+// Обработка остальных сообщений
+async function handleMessage(msg) {
+    const chatId = msg.chat.id;
+    const text = msg.text;
+
+    // Игнорируем команды, которые уже обработаны
+    if (text && text.startsWith('/')) {
+        return;
+    }
+
+    // Для всех остальных сообщений показываем каталог
+    const keyboard = {
+        inline_keyboard: [[
+            {
+                text: '🛒 Каталог',
+                web_app: { url: 'https://artemperekrestov777-lab.github.io/webappmactabakshop/?v=' + Date.now() }
+            }
+        ]]
+    };
+
+    await bot.sendMessage(chatId, 'Выберите действие:', {
+        reply_markup: keyboard
+    });
+}
+
+// Создание заказа
+app.post('/api/order', async (req, res) => {
+    try {
+        const { userId, items, customer } = req.body;
+
+        // Простая имитация создания заказа
+        const orderNumber = Date.now().toString();
+        const order = {
+            orderNumber,
+            userId,
+            items,
+            customer,
+            total: items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+        };
+
+        // Уведомление клиенту
+        await bot.sendMessage(userId,
+            `✅ Ваш заказ №${orderNumber} принят!\\n\\n` +
+            'С вами свяжется менеджер для выставления счета.\\n' +
+            'Ожидайте звонка или сообщения.',
+            {
+                reply_markup: {
+                    inline_keyboard: [[
+                        {
+                            text: '🛒 Вернуться в каталог',
+                            web_app: { url: 'https://artemperekrestov777-lab.github.io/webappmactabakshop/?v=' + Date.now() }
+                        }
+                    ]]
+                }
+            }
+        );
+
+        res.json({
+            success: true,
+            order: {
+                id: orderNumber,
+                orderNumber: orderNumber
+            }
+        });
+
+    } catch (error) {
+        console.error('Ошибка создания заказа:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+// Получение заказа
+app.get('/api/order/:orderId', async (req, res) => {
+    try {
+        const { orderId } = req.params;
+
+        res.json({
+            success: true,
+            order: {
+                id: orderId,
+                orderNumber: orderId,
+                status: 'pending'
+            }
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+// Обновление заказа
+app.post('/api/order/update', async (req, res) => {
+    try {
+        const { orderId, status } = req.body;
+
+        res.json({
+            success: true,
+            order: {
+                id: orderId,
+                status: status
+            }
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+// Запуск сервера
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Сервер запущен на порту ${PORT}`);
+});
+
+console.log('Бот успешно запущен!');
