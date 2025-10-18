@@ -91,7 +91,7 @@ exports.createOrder = async (req, res) => {
                         inline_keyboard: [[
                             {
                                 text: '🛒 Вернуться в каталог',
-                                web_app: { url: 'https://artemperekrestov777-lab.github.io/webappmactabakshop/webapp/index.html?v=' + Date.now() }
+                                web_app: { url: 'https://artemperekrestov777-lab.github.io/webappmactabakshop/webapp/index.html?v=' + Date.now() + '_' + Math.random().toString(36).substr(2, 9) }
                             }
                         ]]
                     }
