@@ -189,7 +189,7 @@ async function handleMessage(msg) {
         inline_keyboard: [[
             {
                 text: '🛒 Каталог',
-                web_app: { url: 'https://artemperekrestov777-lab.github.io/webappmactabakshop/?v=' + Date.now() + '_' + Math.random().toString(36).substr(2, 9) }
+                web_app: { url: 'https://artemperekrestov777-lab.github.io/webappmactabakshop/webapp/index.html?v=' + Date.now() + '_' + Math.random().toString(36).substr(2, 9) }
             }
         ]]
     };
