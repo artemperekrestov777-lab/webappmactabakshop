@@ -440,5 +440,15 @@
     "imageUrl": "/images/tamper-1.png",
     "createdAt": "2024-11-05T50:00:00.000Z",
     "updatedAt": "2024-11-05T50:00:00.000Z"
+  },
+  {
+    "_id": "1761398860033_p1qrk7ewq",
+    "name": "Тестовый товар от Claude",
+    "category": "new",
+    "unit": "piece",
+    "price": 999,
+    "imageUrl": "/images/test.png",
+    "createdAt": "2025-10-25T13:27:40.033Z",
+    "updatedAt": "2025-10-25T13:27:40.033Z"
   }
 ]
