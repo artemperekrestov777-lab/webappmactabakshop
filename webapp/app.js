@@ -203,18 +203,87 @@ function createProductCard(product) {
 // Показать модальное окно товара
 function showProductModal(product) {
     currentProduct = product;
-    document.getElementById('modalImage').src = product.imageUrl || product.image || '';
-    document.getElementById('modalImage').onerror = function() {
-        this.style.display = 'none';
-    };
+
+    const modalImage = document.getElementById('modalImage');
+    const imageUrl = product.imageUrl || product.image;
+
+    if (imageUrl && imageUrl !== '' && !imageUrl.includes('tempImageGowoGG')) {
+        modalImage.src = imageUrl;
+        modalImage.style.display = 'block';
+        modalImage.className = '';
+        modalImage.onerror = function() {
+            // Если изображение не загрузилось, показываем emoji
+            showModalEmojiPlaceholder(product);
+        };
+    } else {
+        // Сразу показываем emoji если нет изображения
+        showModalEmojiPlaceholder(product);
+    }
+
     document.getElementById('modalTitle').textContent = product.name;
     document.getElementById('modalDescription').textContent = product.description || 'Описание товара';
     document.getElementById('modalPrice').textContent = `${product.price}₽`;
     document.getElementById('productModal').style.display = 'flex';
 }
 
+// Показать emoji заглушку в модальном окне
+function showModalEmojiPlaceholder(product) {
+    const modalImage = document.getElementById('modalImage');
+    const categoryEmojis = {
+        'new': '✨',
+        'standard': '🚬',
+        'aromatic': '🌸',
+        'pipe': '🎯',
+        'gilzy': '📜',
+        'custom': '⚙️',
+        'mactabak': '👑',
+        'pipes': '🎭',
+        'machines': '🔧',
+        'tea': '🍃',
+        'tamper': '🔨'
+    };
+
+    const emoji = categoryEmojis[product.category] || '🚬';
+
+    // Скрываем img элемент и создаем emoji div
+    modalImage.style.display = 'none';
+
+    // Удаляем существующий emoji placeholder если есть
+    const existingPlaceholder = modalImage.parentNode.querySelector('.modal-emoji-placeholder');
+    if (existingPlaceholder) {
+        existingPlaceholder.remove();
+    }
+
+    // Создаем новый emoji placeholder
+    const emojiDiv = document.createElement('div');
+    emojiDiv.className = 'modal-emoji-placeholder';
+    emojiDiv.textContent = emoji;
+    emojiDiv.style.cssText = `
+        width: 100%;
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 80px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        color: white;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        margin-bottom: 15px;
+    `;
+
+    // Вставляем emoji div после img элемента
+    modalImage.parentNode.insertBefore(emojiDiv, modalImage.nextSibling);
+}
+
 // Закрыть модальное окно
 function closeProductModal() {
+    // Очищаем emoji placeholder если он есть
+    const existingPlaceholder = document.querySelector('.modal-emoji-placeholder');
+    if (existingPlaceholder) {
+        existingPlaceholder.remove();
+    }
+
     document.getElementById('productModal').style.display = 'none';
     currentProduct = null;
 }
