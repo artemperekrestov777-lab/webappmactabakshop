@@ -185,6 +185,14 @@
             margin-bottom: 15px;
         }
 
+        .info {
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
         /* Стили для вкладок */
         .tabs {
             display: flex;
@@ -476,9 +484,11 @@
                 alert.remove();
             }, 3000);
 
-            // Вибрация при ошибке
+            // Вибрация в зависимости от типа
             if (type === 'error') {
                 tg.HapticFeedback.notificationOccurred('error');
+            } else if (type === 'info') {
+                tg.HapticFeedback.notificationOccurred('warning');
             } else {
                 tg.HapticFeedback.notificationOccurred('success');
             }
@@ -955,9 +965,36 @@
         tg.MainButton.color = "#4CAF50";
         tg.MainButton.show();
         tg.MainButton.onClick(() => {
-            loadProducts();
+            refreshAllData();
             tg.HapticFeedback.impactOccurred('medium');
         });
+
+        // Универсальная функция обновления всех данных
+        async function refreshAllData() {
+            try {
+                showAlert('Обновление данных...', 'info');
+
+                // Перезагружаем товары
+                await loadProducts();
+
+                // Обновляем товары в выбранных категориях для всех вкладок
+                const editCategorySelect = document.getElementById('editCategorySelect');
+                const deleteCategorySelect = document.getElementById('deleteCategorySelect');
+
+                if (editCategorySelect.value) {
+                    loadProductsByCategory('edit');
+                }
+
+                if (deleteCategorySelect.value) {
+                    loadProductsByCategory('delete');
+                }
+
+                showAlert('Данные успешно обновлены!');
+            } catch (error) {
+                console.error('Ошибка обновления:', error);
+                showAlert('Ошибка при обновлении данных', 'error');
+            }
+        }
 
         // Синхронизация с GitHub
         async function syncWithGitHub() {
