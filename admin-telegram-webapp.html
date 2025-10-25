@@ -830,36 +830,100 @@
         // Отправка данных товара на сервер
         async function sendProductData(product, isEdit, productId, form) {
             try {
-                const url = isEdit ? `${API_URL}/api/admin/product/${productId}` : `${API_URL}/api/admin/product`;
-                const method = isEdit ? 'PUT' : 'POST';
+                // Обновляем данные локально в памяти
+                if (isEdit) {
+                    // Редактирование существующего товара
+                    const productIndex = allProducts.findIndex(p => (p.id || p._id) === productId);
+                    if (productIndex !== -1) {
+                        // Обновляем товар, сохраняя ID и добавляя новые данные
+                        allProducts[productIndex] = {
+                            ...allProducts[productIndex],
+                            ...product,
+                            _id: productId,
+                            imageUrl: product.photo || allProducts[productIndex].imageUrl
+                        };
 
-                const response = await fetch(url, {
-                    method: method,
-                    headers: {
-                        'Authorization': `Bearer ${initData}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(product)
-                });
-
-                if (response.ok) {
-                    showAlert(isEdit ? 'Товар успешно обновлен' : 'Товар успешно добавлен');
-                    form.reset();
-                    if (isEdit) {
-                        document.getElementById('editProductForm').style.display = 'none';
-                        document.getElementById('editProductSelect').value = '';
-                        document.getElementById('editImagePreview').innerHTML = '';
-                    } else {
-                        document.getElementById('imagePreview').innerHTML = '';
+                        // Если есть новое фото, обновляем imageUrl
+                        if (product.photo) {
+                            // Создаем простое имя файла на основе названия товара
+                            const fileName = product.name.toLowerCase().replace(/[^a-zа-я0-9]/g, '-') + '.png';
+                            allProducts[productIndex].imageUrl = `/images/${fileName}`;
+                        }
                     }
-                    await loadProducts();
-                    await syncWithGitHub();
-                    tg.HapticFeedback.impactOccurred('medium');
                 } else {
-                    throw new Error(isEdit ? 'Ошибка обновления товара' : 'Ошибка добавления товара');
+                    // Добавление нового товара
+                    const newProduct = {
+                        _id: Date.now().toString() + '_' + Math.random().toString(36).substr(2, 9),
+                        ...product,
+                        imageUrl: product.photo ? `/images/${product.name.toLowerCase().replace(/[^a-zа-я0-9]/g, '-')}.png` : '/images/default.png'
+                    };
+                    allProducts.push(newProduct);
                 }
+
+                // Обновляем products.json локально и загружаем на GitHub
+                await updateProductsFile();
+
+                showAlert(isEdit ? 'Товар успешно обновлен' : 'Товар успешно добавлен');
+                form.reset();
+                if (isEdit) {
+                    document.getElementById('editProductForm').style.display = 'none';
+                    document.getElementById('editProductSelect').value = '';
+                    document.getElementById('editImagePreview').innerHTML = '';
+                } else {
+                    document.getElementById('imagePreview').innerHTML = '';
+                }
+
+                // Обновляем интерфейс
+                await loadProducts();
+                tg.HapticFeedback.impactOccurred('medium');
+
             } catch (error) {
+                console.error('Ошибка при сохранении товара:', error);
                 showAlert(isEdit ? 'Ошибка при обновлении товара' : 'Ошибка при добавлении товара', 'error');
+            }
+        }
+
+        // Функция обновления файла products.json
+        async function updateProductsFile() {
+            try {
+                showAlert('Сохранение изменений...', 'info');
+
+                // Создаем JSON данные
+                const productsJson = JSON.stringify(allProducts, null, 2);
+
+                // Выводим JSON в консоль для копирования в файл
+                console.log('=== ОБНОВЛЕННЫЕ ДАННЫЕ ДЛЯ products.json ===');
+                console.log(productsJson);
+                console.log('=== КОНЕЦ ДАННЫХ ===');
+
+                // Также обновляем fallback данные в админ-панели
+                window.FALLBACK_PRODUCTS = [...allProducts];
+
+                showAlert('Изменения готовы к сохранению', 'info');
+
+                // Показываем инструкцию пользователю
+                showAlert('Скопируйте данные из консоли в webapp/products.json', 'info');
+
+                // Создаем ссылку для скачивания обновленного файла
+                const blob = new Blob([productsJson], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'products.json';
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+
+                setTimeout(() => {
+                    showAlert('Файл загружен! Поместите его в папку webapp/ и загрузите на GitHub');
+                }, 500);
+
+            } catch (error) {
+                console.error('Ошибка обновления файла:', error);
+                showAlert('Ошибка создания файла', 'error');
+                throw error;
             }
         }
 
@@ -910,23 +974,23 @@
         // Удаление товара
         async function deleteProduct(id) {
             try {
-                const response = await fetch(`${API_URL}/api/admin/product/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${initData}`
-                    }
-                });
+                // Удаляем товар из локального массива
+                const productIndex = allProducts.findIndex(p => (p.id || p._id) === id);
+                if (productIndex !== -1) {
+                    allProducts.splice(productIndex, 1);
 
-                if (response.ok) {
+                    // Обновляем products.json
+                    await updateProductsFile();
+
                     showAlert('Товар успешно удален');
                     cancelDelete();
                     await loadProducts();
-                    await syncWithGitHub();
                     tg.HapticFeedback.impactOccurred('light');
                 } else {
-                    throw new Error('Ошибка удаления');
+                    throw new Error('Товар не найден');
                 }
             } catch (error) {
+                console.error('Ошибка при удалении товара:', error);
                 showAlert('Ошибка при удалении товара', 'error');
             }
         }
