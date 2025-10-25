@@ -442,148 +442,26 @@
         // Резервный способ загрузки товаров из GitHub
         const GITHUB_PRODUCTS_URL = 'https://artemperekrestov777-lab.github.io/webappmactabakshop/webapp/products.json';
 
-        // Заглушка с тестовыми данными если ничего не работает
+        // Заглушка с тестовыми данными если ничего не работает - данные синхронизированы с products.json
         const FALLBACK_PRODUCTS = [
-            {
-                "_id": "672ad123456789012345678a",
-                "name": "Табак для трубки Virginia",
-                "category": "new",
-                "unit": "weight",
-                "packageWeight": 50,
-                "price": 1200,
-                "imageUrl": "/images/virginia.png"
-            },
-            {
-                "_id": "672ad123456789012345679a",
-                "name": "Новый табак Premium Gold",
-                "category": "new",
-                "unit": "weight",
-                "packageWeight": 100,
-                "price": 1800,
-                "imageUrl": "/images/premium-gold.png"
-            },
-            {
-                "_id": "672ad123456789012345679b",
-                "name": "Эксклюзивная смесь Royal",
-                "category": "new",
-                "unit": "weight",
-                "packageWeight": 75,
-                "price": 2200,
-                "imageUrl": "/images/royal-mix.png"
-            },
-            {
-                "_id": "672ad123456789012345679c",
-                "name": "Новинка - Табак Limited Edition",
-                "category": "new",
-                "unit": "weight",
-                "packageWeight": 50,
-                "price": 2500,
-                "imageUrl": "/images/limited.png"
-            },
-            {
-                "_id": "672ad123456789012345678b",
-                "name": "Курительная трубка Classic",
-                "category": "pipes",
-                "unit": "piece",
-                "price": 3500,
-                "imageUrl": "/images/pipe-classic.png"
-            },
-            {
-                "_id": "672ad123456789012345678c",
-                "name": "Ароматный табак Cherry",
-                "category": "aromatic",
-                "unit": "weight",
-                "packageWeight": 100,
-                "price": 1800,
-                "imageUrl": "/images/cherry.png"
-            },
-            {
-                "_id": "672ad123456789012345678d",
-                "name": "Стандартный табак English",
-                "category": "standard",
-                "unit": "weight",
-                "packageWeight": 50,
-                "price": 1400,
-                "imageUrl": "/images/english.png"
-            },
-            {
-                "_id": "672ad123456789012345678f",
-                "name": "Стандартный табак Virginia Gold",
-                "category": "standard",
-                "unit": "weight",
-                "packageWeight": 100,
-                "price": 1600,
-                "imageUrl": "/images/virginia-gold.png"
-            },
-            {
-                "_id": "672ad123456789012345679d",
-                "name": "Стандартный табак Burley Classic",
-                "category": "standard",
-                "unit": "weight",
-                "packageWeight": 75,
-                "price": 1500,
-                "imageUrl": "/images/burley-classic.png"
-            },
-            {
-                "_id": "672ad123456789012345679e",
-                "name": "Стандартный табак Oriental Mix",
-                "category": "standard",
-                "unit": "weight",
-                "packageWeight": 50,
-                "price": 1700,
-                "imageUrl": "/images/oriental-mix.png"
-            },
-            {
-                "_id": "672ad123456789012345679f",
-                "name": "Стандартный табак Kentucky Blend",
-                "category": "standard",
-                "unit": "weight",
-                "packageWeight": 100,
-                "price": 1800,
-                "imageUrl": "/images/kentucky-blend.png"
-            },
-            {
-                "_id": "672ad123456789012345678e",
-                "name": "Машинка для набивки Pro",
-                "category": "machines",
-                "unit": "piece",
-                "price": 2500,
-                "imageUrl": "/images/machine-pro.png"
-            },
-            {
-                "_id": "672ad12345678901234567a1",
-                "name": "Ароматный табак Vanilla",
-                "category": "aromatic",
-                "unit": "weight",
-                "packageWeight": 75,
-                "price": 1900,
-                "imageUrl": "/images/vanilla.png"
-            },
-            {
-                "_id": "672ad12345678901234567a2",
-                "name": "Ароматный табак Caramel",
-                "category": "aromatic",
-                "unit": "weight",
-                "packageWeight": 50,
-                "price": 2000,
-                "imageUrl": "/images/caramel.png"
-            },
-            {
-                "_id": "672ad12345678901234567a3",
-                "name": "Курительная трубка Premium",
-                "category": "pipes",
-                "unit": "piece",
-                "price": 5500,
-                "imageUrl": "/images/pipe-premium.png"
-            },
-            {
-                "_id": "672ad12345678901234567a4",
-                "name": "Машинка для набивки Basic",
-                "category": "machines",
-                "unit": "piece",
-                "price": 1800,
-                "imageUrl": "/images/machine-basic.png"
-            }
+            { "_id": "672ad123456789012345678a", "name": "Зажигалка для трубки spunk-baofa", "category": "new", "unit": "piece", "price": 800, "imageUrl": "/images/spunk-baofa.png" },
+            { "_id": "672ad123456789012345679a", "name": "Зажигалка для трубки honest (копия 4281)", "category": "new", "unit": "piece", "price": 900, "imageUrl": "/images/honest-4281.png" },
+            { "_id": "672ad123456789012345679b", "name": "Премиум гильзы OCB 500 black", "category": "new", "unit": "piece", "price": 600, "imageUrl": "/images/ocb-500-black.png" },
+            { "_id": "672ad123456789012345679c", "name": "Машинка набивочная LED 1", "category": "new", "unit": "piece", "price": 3000, "imageUrl": "/images/led-1.png" },
+            { "_id": "672ad123456789012345679d", "name": "Сумка кожаная muxiang № 013 (1099)", "category": "new", "unit": "piece", "price": 4800, "imageUrl": "/images/muxiang-013.png" },
+            { "_id": "672ad123456789012345678d", "name": "Шторм Storm", "category": "standard", "unit": "weight", "packageWeight": 50, "price": 1700, "imageUrl": "/images/storm.png" },
+            { "_id": "672ad123456789012345678f", "name": "Легенда Legend", "category": "standard", "unit": "weight", "packageWeight": 50, "price": 1700, "imageUrl": "/images/legend.png" },
+            { "_id": "672ad123456789012345679e", "name": "Красный дракон Red Dragon", "category": "standard", "unit": "weight", "packageWeight": 50, "price": 1700, "imageUrl": "/images/red-dragon.png" },
+            { "_id": "672ad123456789012345679f", "name": "Маршал Marshal", "category": "standard", "unit": "weight", "packageWeight": 50, "price": 1700, "imageUrl": "/images/marshal.png" },
+            { "_id": "672ad12345678901234567a0", "name": "MAC - Винстон Winston", "category": "standard", "unit": "weight", "packageWeight": 50, "price": 1950, "imageUrl": "/images/mac-winston.png" },
+            { "_id": "672ad123456789012345678c", "name": "МАК микс", "category": "aromatic", "unit": "weight", "packageWeight": 50, "price": 2200, "imageUrl": "/images/mac-mix.png" },
+            { "_id": "672ad12345678901234567a1", "name": "Бленд - юбилейный", "category": "aromatic", "unit": "weight", "packageWeight": 50, "price": 2200, "imageUrl": "/images/blend-jubilee.png" },
+            { "_id": "672ad12345678901234567a2", "name": "X - бленд", "category": "aromatic", "unit": "weight", "packageWeight": 50, "price": 2200, "imageUrl": "/images/x-blend.png" },
+            { "_id": "672ad12345678901234567a3", "name": "Кофе Coffee", "category": "aromatic", "unit": "weight", "packageWeight": 50, "price": 2200, "imageUrl": "/images/coffee.png" },
+            { "_id": "672ad123456789012345678b", "name": "Трубка Mr Burning 220", "category": "pipes", "unit": "piece", "price": 3500, "imageUrl": "/images/mr-burning-220.png" },
+            { "_id": "672ad12345678901234567b9", "name": "Muxang Briar № 888", "category": "pipes", "unit": "piece", "price": 8000, "imageUrl": "/images/muxang-888.png" },
+            { "_id": "672ad123456789012345678e", "name": "Машинка набивочная OCB Easy Slide", "category": "machines", "unit": "piece", "price": 4000, "imageUrl": "/images/ocb-easy-slide.png" },
+            { "_id": "672ad12345678901234567c2", "name": "Машинка набивочная Injectormatic 2", "category": "machines", "unit": "piece", "price": 2500, "imageUrl": "/images/injectormatic-2.png" }
         ];
 
         // Функция для показа уведомлений
