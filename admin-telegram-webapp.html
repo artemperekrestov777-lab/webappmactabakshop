@@ -830,12 +830,75 @@
         // Отправка данных товара на сервер
         async function sendProductData(product, isEdit, productId, form) {
             try {
+                showAlert('Сохранение товара...', 'info');
+
+                // Определяем базовый URL API
+                const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? 'http://localhost:3000'
+                    : 'https://your-api-domain.com';
+
+                let response;
+
+                if (isEdit) {
+                    // Обновление существующего товара
+                    response = await fetch(`${API_BASE}/api/admin/product/${productId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(product)
+                    });
+                } else {
+                    // Добавление нового товара
+                    response = await fetch(`${API_BASE}/api/admin/product`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(product)
+                    });
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert(isEdit ? 'Товар успешно обновлен и синхронизирован!' : 'Товар успешно добавлен и синхронизирован!');
+
+                    form.reset();
+                    if (isEdit) {
+                        document.getElementById('editProductForm').style.display = 'none';
+                        document.getElementById('editProductSelect').value = '';
+                        document.getElementById('editImagePreview').innerHTML = '';
+                    } else {
+                        document.getElementById('imagePreview').innerHTML = '';
+                    }
+
+                    // Обновляем интерфейс
+                    await loadProducts();
+                    tg.HapticFeedback.impactOccurred('medium');
+                } else {
+                    throw new Error(result.error || 'Ошибка сервера');
+                }
+
+            } catch (error) {
+                console.error('Ошибка при сохранении товара:', error);
+                showAlert(`Ошибка: ${error.message}`, 'error');
+
+                // Fallback - локальное сохранение если сервер недоступен
+                if (error.message.includes('fetch')) {
+                    showAlert('Сервер недоступен. Используется локальное сохранение.', 'warning');
+                    await sendProductDataLocally(product, isEdit, productId, form);
+                }
+            }
+        }
+
+        // Fallback функция для локального сохранения
+        async function sendProductDataLocally(product, isEdit, productId, form) {
+            try {
                 // Обновляем данные локально в памяти
                 if (isEdit) {
-                    // Редактирование существующего товара
                     const productIndex = allProducts.findIndex(p => (p.id || p._id) === productId);
                     if (productIndex !== -1) {
-                        // Обновляем товар, сохраняя ID и добавляя новые данные
                         allProducts[productIndex] = {
                             ...allProducts[productIndex],
                             ...product,
@@ -843,27 +906,23 @@
                             imageUrl: product.photo || allProducts[productIndex].imageUrl
                         };
 
-                        // Если есть новое фото, обновляем imageUrl
                         if (product.photo) {
-                            // Создаем простое имя файла на основе названия товара
-                            const fileName = product.name.toLowerCase().replace(/[^a-zа-я0-9]/g, '-') + '.png';
+                            const fileName = `temp${Date.now()}.png`;
                             allProducts[productIndex].imageUrl = `/images/${fileName}`;
                         }
                     }
                 } else {
-                    // Добавление нового товара
                     const newProduct = {
                         _id: Date.now().toString() + '_' + Math.random().toString(36).substr(2, 9),
                         ...product,
-                        imageUrl: product.photo ? `/images/${product.name.toLowerCase().replace(/[^a-zа-я0-9]/g, '-')}.png` : '/images/default.png'
+                        imageUrl: product.photo ? `/images/temp${Date.now()}.png` : '/images/default.png'
                     };
                     allProducts.push(newProduct);
                 }
 
-                // Обновляем products.json локально и загружаем на GitHub
-                await updateProductsFile();
+                await updateProductsFileLocally();
 
-                showAlert(isEdit ? 'Товар успешно обновлен' : 'Товар успешно добавлен');
+                showAlert(isEdit ? 'Товар обновлен локально' : 'Товар добавлен локально');
                 form.reset();
                 if (isEdit) {
                     document.getElementById('editProductForm').style.display = 'none';
@@ -873,20 +932,19 @@
                     document.getElementById('imagePreview').innerHTML = '';
                 }
 
-                // Обновляем интерфейс
                 await loadProducts();
                 tg.HapticFeedback.impactOccurred('medium');
 
             } catch (error) {
-                console.error('Ошибка при сохранении товара:', error);
-                showAlert(isEdit ? 'Ошибка при обновлении товара' : 'Ошибка при добавлении товара', 'error');
+                console.error('Ошибка локального сохранения:', error);
+                showAlert('Ошибка при локальном сохранении', 'error');
             }
         }
 
-        // Функция обновления файла products.json
-        async function updateProductsFile() {
+        // Локальная функция обновления файла products.json (fallback)
+        async function updateProductsFileLocally() {
             try {
-                showAlert('Сохранение изменений...', 'info');
+                showAlert('Сохранение изменений локально...', 'info');
 
                 // Создаем JSON данные
                 const productsJson = JSON.stringify(allProducts, null, 2);
@@ -974,15 +1032,51 @@
         // Удаление товара
         async function deleteProduct(id) {
             try {
-                // Удаляем товар из локального массива
+                showAlert('Удаление товара...', 'info');
+
+                // Определяем базовый URL API
+                const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? 'http://localhost:3000'
+                    : 'https://your-api-domain.com';
+
+                const response = await fetch(`${API_BASE}/api/admin/product/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('Товар успешно удален и синхронизирован!');
+                    cancelDelete();
+                    await loadProducts();
+                    tg.HapticFeedback.impactOccurred('light');
+                } else {
+                    throw new Error(result.error || 'Ошибка сервера');
+                }
+
+            } catch (error) {
+                console.error('Ошибка при удалении товара:', error);
+                showAlert(`Ошибка: ${error.message}`, 'error');
+
+                // Fallback - локальное удаление если сервер недоступен
+                if (error.message.includes('fetch')) {
+                    showAlert('Сервер недоступен. Используется локальное удаление.', 'warning');
+                    await deleteProductLocally(id);
+                }
+            }
+        }
+
+        // Fallback функция для локального удаления
+        async function deleteProductLocally(id) {
+            try {
                 const productIndex = allProducts.findIndex(p => (p.id || p._id) === id);
                 if (productIndex !== -1) {
                     allProducts.splice(productIndex, 1);
-
-                    // Обновляем products.json
-                    await updateProductsFile();
-
-                    showAlert('Товар успешно удален');
+                    await updateProductsFileLocally();
+                    showAlert('Товар удален локально');
                     cancelDelete();
                     await loadProducts();
                     tg.HapticFeedback.impactOccurred('light');
@@ -990,8 +1084,8 @@
                     throw new Error('Товар не найден');
                 }
             } catch (error) {
-                console.error('Ошибка при удалении товара:', error);
-                showAlert('Ошибка при удалении товара', 'error');
+                console.error('Ошибка локального удаления:', error);
+                showAlert('Ошибка при локальном удалении', 'error');
             }
         }
 
@@ -1053,7 +1147,10 @@
                     loadProductsByCategory('delete');
                 }
 
-                showAlert('Данные успешно обновлены!');
+                // Дополнительно вызываем синхронизацию с GitHub
+                await syncWithGitHub();
+
+                showAlert('Данные успешно обновлены и синхронизированы!');
             } catch (error) {
                 console.error('Ошибка обновления:', error);
                 showAlert('Ошибка при обновлении данных', 'error');
@@ -1063,18 +1160,31 @@
         // Синхронизация с GitHub
         async function syncWithGitHub() {
             try {
-                const response = await fetch(`${API_URL}/api/admin/sync`, {
+                showAlert('Синхронизация с каталогом...', 'info');
+
+                // Определяем базовый URL API
+                const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? 'http://localhost:3000'
+                    : 'https://your-api-domain.com';
+
+                const response = await fetch(`${API_BASE}/api/admin/sync`, {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${initData}`,
                         'Content-Type': 'application/json'
                     }
                 });
-                if (response.ok) {
+
+                const result = await response.json();
+
+                if (result.success) {
                     console.log('Синхронизация с GitHub выполнена');
+                    showAlert('Каталог синхронизирован с GitHub!');
+                } else {
+                    throw new Error(result.error || 'Ошибка синхронизации');
                 }
             } catch (error) {
                 console.error('Ошибка синхронизации:', error);
+                showAlert('Ошибка синхронизации. Проверьте подключение к серверу.', 'warning');
             }
         }
 
