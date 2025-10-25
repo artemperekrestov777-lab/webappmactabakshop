@@ -290,8 +290,8 @@
                             <input type="number" name="price" min="0" required>
                         </div>
                         <div class="form-group">
-                            <label>Фото товара (PNG)</label>
-                            <input type="file" name="photo" accept=".png" onchange="previewImage(event)">
+                            <label>Фото товара (PNG/JPG/JPEG)</label>
+                            <input type="file" name="photo" accept=".png,.jpg,.jpeg" onchange="previewImage(event)">
                             <div id="imagePreview" style="margin-top:10px;"></div>
                         </div>
                         <button type="submit" class="btn btn-primary">Добавить товар</button>
@@ -368,8 +368,8 @@
                                 <input type="number" name="price" min="0" required>
                             </div>
                             <div class="form-group">
-                                <label>Фото товара (PNG)</label>
-                                <input type="file" name="photo" accept=".png" onchange="previewEditImage(event)">
+                                <label>Фото товара (PNG/JPG/JPEG)</label>
+                                <input type="file" name="photo" accept=".png,.jpg,.jpeg" onchange="previewEditImage(event)">
                                 <div id="editImagePreview" style="margin-top:10px;"></div>
                             </div>
                             <button type="submit" class="btn btn-primary">Сохранить изменения</button>
@@ -557,14 +557,14 @@
             const file = event.target.files[0];
             const preview = document.getElementById('imagePreview');
 
-            if (file && file.type === 'image/png') {
+            if (file && (file.type === 'image/png' || file.type === 'image/jpeg' || file.type === 'image/jpg')) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     preview.innerHTML = `<img src="${e.target.result}" style="max-width:200px;max-height:200px;border-radius:5px;">`;
                 };
                 reader.readAsDataURL(file);
             } else if (file) {
-                showAlert('Пожалуйста, загрузите изображение в формате PNG', 'error');
+                showAlert('Пожалуйста, загрузите изображение в формате PNG, JPG или JPEG', 'error');
                 event.target.value = '';
                 preview.innerHTML = '';
             }
@@ -575,14 +575,14 @@
             const file = event.target.files[0];
             const preview = document.getElementById('editImagePreview');
 
-            if (file && file.type === 'image/png') {
+            if (file && (file.type === 'image/png' || file.type === 'image/jpeg' || file.type === 'image/jpg')) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     preview.innerHTML = `<img src="${e.target.result}" style="max-width:200px;max-height:200px;border-radius:5px;">`;
                 };
                 reader.readAsDataURL(file);
             } else if (file) {
-                showAlert('Пожалуйста, загрузите изображение в формате PNG', 'error');
+                showAlert('Пожалуйста, загрузите изображение в формате PNG, JPG или JPEG', 'error');
                 event.target.value = '';
                 preview.innerHTML = '';
             }
@@ -834,7 +834,7 @@
 
                 // Определяем базовый URL API
                 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                    ? 'http://localhost:3000'
+                    ? 'http://localhost:3001'
                     : 'https://your-api-domain.com';
 
                 let response;
@@ -1036,7 +1036,7 @@
 
                 // Определяем базовый URL API
                 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                    ? 'http://localhost:3000'
+                    ? 'http://localhost:3001'
                     : 'https://your-api-domain.com';
 
                 const response = await fetch(`${API_BASE}/api/admin/product/${id}`, {
@@ -1164,7 +1164,7 @@
 
                 // Определяем базовый URL API
                 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                    ? 'http://localhost:3000'
+                    ? 'http://localhost:3001'
                     : 'https://your-api-domain.com';
 
                 const response = await fetch(`${API_BASE}/api/admin/sync`, {
