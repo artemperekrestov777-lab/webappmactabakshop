@@ -26,13 +26,24 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Загрузка продуктов
 async function loadProducts() {
     try {
-        // Попытка загрузить с сервера
-        const response = await fetch(`${API_URL}/admin/products`);
+        // Загрузка с GitHub Pages с кеш-бастингом
+        const timestamp = Date.now();
+        const productsUrl = `https://artemperekrestov777-lab.github.io/webappmactabakshop/webapp/products.json?v=${timestamp}`;
+
+        const response = await fetch(productsUrl, {
+            cache: 'no-cache',
+            headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0'
+            }
+        });
+
         if (response.ok) {
-            const data = await response.json();
-            allProducts = data.products || [];
+            allProducts = await response.json();
+            console.log(`Загружено ${allProducts.length} товаров с GitHub Pages`);
         } else {
-            // Загрузка локальных данных
+            console.warn('Не удалось загрузить с GitHub Pages, используем локальные данные');
             allProducts = window.productsData || [];
         }
     } catch (error) {
