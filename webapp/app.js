@@ -136,17 +136,39 @@ function createProductCard(product) {
 
     const imageDiv = document.createElement('div');
     imageDiv.className = 'product-image';
+
+    // Создаем красивую заглушку с эмодзи в зависимости от категории
+    const categoryEmojis = {
+        'new': '✨',
+        'standard': '🚬',
+        'aromatic': '🌸',
+        'pipe': '🎯',
+        'gilzy': '📜',
+        'custom': '⚙️',
+        'mactabak': '👑',
+        'pipes': '🎭',
+        'machines': '🔧',
+        'tea': '🍃',
+        'tamper': '🔨'
+    };
+
+    const emoji = categoryEmojis[product.category] || '📦';
+
     if (product.image || product.imageUrl) {
         const img = document.createElement('img');
-        img.src = product.imageUrl || product.image || '';
+        const fullImageUrl = (product.imageUrl || product.image || '').startsWith('http')
+            ? product.imageUrl || product.image
+            : `https://artemperekrestov777-lab.github.io/webappmactabakshop/webapp${product.imageUrl || product.image}`;
+
+        img.src = fullImageUrl;
         img.alt = product.name;
         img.onerror = () => {
             img.style.display = 'none';
-            imageDiv.textContent = '📦';
+            imageDiv.innerHTML = `<div class="emoji-placeholder">${emoji}</div>`;
         };
         imageDiv.appendChild(img);
     } else {
-        imageDiv.textContent = '📦';
+        imageDiv.innerHTML = `<div class="emoji-placeholder">${emoji}</div>`;
     }
 
     const info = document.createElement('div');
