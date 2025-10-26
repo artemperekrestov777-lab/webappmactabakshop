@@ -444,8 +444,8 @@
         document.getElementById('userInfo').innerHTML =
             `Администратор: ${user?.first_name || 'Admin'}`;
 
-        // API URL (используем ваш сервер)
-        const API_URL = 'http://85.198.83.41:3000';
+        // API URL (используем ваш сервер на порту 3001)
+        const API_URL = 'http://85.198.83.41:3001';
 
         // Резервный способ загрузки товаров из GitHub
         const GITHUB_PRODUCTS_URL = 'https://artemperekrestov777-lab.github.io/webappmactabakshop/webapp/products.json';
@@ -835,7 +835,22 @@
                 // Определяем базовый URL API
                 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
                     ? 'http://localhost:3001'
-                    : 'https://your-api-domain.com';
+                    : 'http://85.198.83.41:3001';
+
+                // Создаем FormData для отправки файлов
+                const formData = new FormData();
+
+                // Добавляем данные товара как JSON строку
+                formData.append('productData', JSON.stringify(product));
+
+                // Добавляем файл если он выбран
+                const photoInput = isEdit ?
+                    document.querySelector('#editProductForm input[name="photo"]') :
+                    document.querySelector('#addProductForm input[name="photo"]');
+
+                if (photoInput && photoInput.files[0]) {
+                    formData.append('photo', photoInput.files[0]);
+                }
 
                 let response;
 
@@ -843,19 +858,13 @@
                     // Обновление существующего товара
                     response = await fetch(`${API_BASE}/api/admin/product/${productId}`, {
                         method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(product)
+                        body: formData
                     });
                 } else {
                     // Добавление нового товара
                     response = await fetch(`${API_BASE}/api/admin/product`, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(product)
+                        body: formData
                     });
                 }
 
@@ -1037,7 +1046,7 @@
                 // Определяем базовый URL API
                 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
                     ? 'http://localhost:3001'
-                    : 'https://your-api-domain.com';
+                    : 'http://85.198.83.41:3001';
 
                 const response = await fetch(`${API_BASE}/api/admin/product/${id}`, {
                     method: 'DELETE',
@@ -1165,7 +1174,7 @@
                 // Определяем базовый URL API
                 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
                     ? 'http://localhost:3001'
-                    : 'https://your-api-domain.com';
+                    : 'http://85.198.83.41:3001';
 
                 const response = await fetch(`${API_BASE}/api/admin/sync`, {
                     method: 'POST',
