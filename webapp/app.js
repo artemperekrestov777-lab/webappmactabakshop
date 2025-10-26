@@ -26,9 +26,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Загрузка продуктов
 async function loadProducts() {
     try {
-        // Загрузка с GitHub Pages с кеш-бастингом
+        // Загрузка с VPS API (правильный источник данных)
         const timestamp = Date.now();
-        const productsUrl = `https://artemperekrestov777-lab.github.io/webappmactabakshop/webapp/products.json?v=${timestamp}`;
+        const productsUrl = `http://85.198.83.41:3001/api/admin/products?v=${timestamp}`;
 
         const response = await fetch(productsUrl, {
             cache: 'no-cache',
@@ -40,11 +40,20 @@ async function loadProducts() {
         });
 
         if (response.ok) {
-            allProducts = await response.json();
-            console.log(`Загружено ${allProducts.length} товаров с GitHub Pages`);
+            const result = await response.json();
+            allProducts = result.success ? result.products : result;
+            console.log(`Загружено ${allProducts.length} товаров с VPS API`);
         } else {
-            console.warn('Не удалось загрузить с GitHub Pages, используем локальные данные');
-            allProducts = window.productsData || [];
+            console.warn('Не удалось загрузить с VPS API, используем fallback с GitHub Pages');
+            // Fallback к GitHub Pages
+            const fallbackUrl = `https://artemperekrestov777-lab.github.io/webappmactabakshop/webapp/products.json?v=${timestamp}`;
+            const fallbackResponse = await fetch(fallbackUrl);
+            if (fallbackResponse.ok) {
+                allProducts = await fallbackResponse.json();
+                console.log(`Загружено ${allProducts.length} товаров с GitHub Pages (fallback)`);
+            } else {
+                allProducts = window.productsData || [];
+            }
         }
     } catch (error) {
         console.error('Ошибка загрузки товаров:', error);

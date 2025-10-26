@@ -445,7 +445,9 @@
             `Администратор: ${user?.first_name || 'Admin'}`;
 
         // API URL (используем ваш сервер на порту 3001)
-        const API_URL = 'http://85.198.83.41:3001';
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3001'
+            : 'http://85.198.83.41:3001';
 
         // Резервный способ загрузки товаров из GitHub
         const GITHUB_PRODUCTS_URL = 'https://artemperekrestov777-lab.github.io/webappmactabakshop/webapp/products.json';
