@@ -12,6 +12,19 @@ let currentProduct = null;
 let savedUserData = null;
 const API_URL = 'http://localhost:3000/api';
 
+// Функция для показа кастомного модального окна
+function showMessage(message) {
+    const modal = document.getElementById('messageModal');
+    const messageText = document.getElementById('messageText');
+    messageText.textContent = message;
+    modal.style.display = 'block';
+}
+
+// Функция для закрытия модального окна сообщений
+function closeMessageModal() {
+    document.getElementById('messageModal').style.display = 'none';
+}
+
 // Инициализация при загрузке
 document.addEventListener('DOMContentLoaded', async () => {
     await loadProducts();
@@ -21,6 +34,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Обработчик отправки формы
     document.getElementById('checkoutForm').addEventListener('submit', handleCheckoutSubmit);
+
+    // Закрытие модального окна при клике вне его
+    document.getElementById('messageModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeMessageModal();
+        }
+    });
 });
 
 // Загрузка продуктов
@@ -457,7 +477,7 @@ function showCheckout() {
     const totalWeight = weightItems.reduce((sum, item) => sum + (item.weight * item.quantity), 0);
 
     if (weightItems.length > 0 && totalWeight < 1000) {
-        alert('Минимальный объём заказа по весовым товарам от 1 кг');
+        showMessage('Минимальный объём заказа по весовым товарам от 1 кг');
         return;
     }
 
@@ -568,7 +588,7 @@ async function handleCheckoutSubmit(event) {
 
             // Показ сообщения и возврат в каталог
             if (result.order.isFromMoscow) {
-                alert('Ваш заказ принят! С вами свяжется менеджер для выставления счета.');
+                showMessage('Ваш заказ принят! С вами свяжется менеджер для выставления счета.');
             } else {
                 // QR-код будет показан через бота
             }
@@ -576,11 +596,11 @@ async function handleCheckoutSubmit(event) {
             // Возврат в каталог
             showCatalog();
         } else {
-            alert(result.error || 'Ошибка при создании заказа');
+            showMessage(result.error || 'Ошибка при создании заказа');
         }
     } catch (error) {
         console.error('Ошибка отправки заказа:', error);
-        alert('Ошибка соединения с сервером. Попробуйте позже.');
+        showMessage('Ошибка соединения с сервером. Попробуйте позже.');
     } finally {
         hideLoader();
     }

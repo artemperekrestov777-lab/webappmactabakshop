@@ -186,6 +186,21 @@
             </div>
         </div>
 
+        <!-- Модальное окно для сообщений -->
+        <div id="messageModal" class="modal" style="display: none;">
+            <div class="modal-content message-modal">
+                <div class="message-modal-header">
+                    <h3>Уведомление</h3>
+                </div>
+                <div class="message-modal-body">
+                    <p id="messageText"></p>
+                </div>
+                <div class="message-modal-footer">
+                    <button class="message-modal-btn" onclick="closeMessageModal()">OK</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Кнопка корзины -->
         <button id="cartBtn" class="cart-btn" onclick="showCart()">
             🛒
