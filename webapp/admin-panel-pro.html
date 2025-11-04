@@ -1009,7 +1009,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">✏️ Редактирование товара</h3>
-                <button class="modal-close" onclick="closeEditModal()">✕</button>
+                <button class="modal-close" id="modalCloseBtn">✕</button>
             </div>
             <div class="modal-body">
                 <form id="editForm">
@@ -1065,8 +1065,8 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeEditModal()">Отмена</button>
-                <button class="btn btn-primary" onclick="saveEditedProduct()">💾 Сохранить</button>
+                <button class="btn btn-secondary" id="modalCancelBtn">Отмена</button>
+                <button class="btn btn-primary" id="modalSaveBtn">💾 Сохранить</button>
             </div>
         </div>
     </div>
@@ -1114,6 +1114,11 @@
 
             // Drag & Drop для формы товара
             setupDropZone('productDropZone', 'productImages', 'productImagePreview');
+
+            // Обработчики модального окна
+            document.getElementById('modalCloseBtn').addEventListener('click', window.closeEditModal);
+            document.getElementById('modalCancelBtn').addEventListener('click', window.closeEditModal);
+            document.getElementById('modalSaveBtn').addEventListener('click', window.saveEditedProduct);
 
             // Drag & Drop для массовой загрузки
             setupDropZone('massDropZone', 'massUploadInput', 'uploadPreview', true);
