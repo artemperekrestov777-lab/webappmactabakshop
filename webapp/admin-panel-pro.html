@@ -793,7 +793,7 @@
                     <a class="nav-item active" onclick="showSection('dashboard')">
                         📊 Панель управления
                     </a>
-                    <a class="nav-item" onclick="showSection('products')">
+                    <a class="nav-item" onclick="showSection('products')" style="cursor: pointer;">
                         📦 Товары
                     </a>
                     <a class="nav-item" onclick="showSection('upload')">
@@ -859,7 +859,12 @@
 
                     <!-- Форма добавления товара -->
                     <div class="product-form">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                         <h2 class="upload-title">➕ Добавление нового товара</h2>
+                        <button class="btn btn-primary" onclick="showSection('products')" style="margin: 0;">
+                            📦 Показать все товары
+                        </button>
+                    </div>
                         <form id="productForm">
                             <div class="form-row">
                                 <div class="form-group">
@@ -1096,6 +1101,11 @@
                 showAdminPanel();
                 loadProducts();
                 loadStats();
+
+                // Проверяем хэш в URL для автоматического перехода
+                if (window.location.hash === '#products') {
+                    showSection('products');
+                }
             }
 
             // Обработчики форм
@@ -1464,7 +1474,7 @@
             }
         }
 
-        function editProduct(productId) {
+        window.editProduct = function(productId) {
             const product = products.find(p => p._id === productId);
             if (!product) return;
 
@@ -1496,7 +1506,7 @@
             document.getElementById('editModal').classList.add('active');
         }
 
-        async function saveEditedProduct() {
+        window.saveEditedProduct = async function() {
             showLoader();
 
             const productId = document.getElementById('editProductId').value;
@@ -1544,7 +1554,7 @@
             }
         }
 
-        async function deleteProduct(productId) {
+        window.deleteProduct = async function(productId) {
             if (!confirm('Вы уверены, что хотите удалить этот товар?')) return;
 
             showLoader();
@@ -1574,7 +1584,7 @@
             }
         }
 
-        async function removeProductImage(productId, imageId) {
+        window.removeProductImage = async function(productId, imageId) {
             if (!confirm('Удалить это изображение?')) return;
 
             showLoader();
@@ -1604,7 +1614,7 @@
             }
         }
 
-        function closeEditModal() {
+        window.closeEditModal = function() {
             document.getElementById('editModal').classList.remove('active');
             document.getElementById('editNewImages').value = '';
         }
@@ -1707,7 +1717,7 @@
         // ============================
         // UI ФУНКЦИИ
         // ============================
-        function showSection(section) {
+        window.showSection = function(section) {
             // Скрываем все секции
             document.getElementById('dashboardSection').style.display = 'none';
             document.getElementById('productsSection').style.display = 'none';
@@ -1739,7 +1749,7 @@
             event.target.classList.add('active');
         }
 
-        function filterByCategory(category) {
+        window.filterByCategory = function(category) {
             if (category === 'all') {
                 displayProducts(products);
             } else {

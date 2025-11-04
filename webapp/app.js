@@ -99,7 +99,8 @@ function loadCategories() {
         { id: 'pipes', name: 'Курительные трубки' },
         { id: 'machines', name: 'Машинки для набивки' },
         { id: 'tea', name: 'Китайский чай' },
-        { id: 'tamper', name: 'Тампер' }
+        { id: 'coffee', name: 'Кофе' },
+        { id: 'accessories', name: 'Аксессуары' }
     ];
 
     categories.forEach(cat => {
@@ -177,8 +178,9 @@ function createProductCard(product) {
         'mactabak': '👑',
         'pipes': '🎭',
         'machines': '🔧',
-        'tea': '🍃',
-        'tamper': '🔨'
+        'tea': '🍵',
+        'coffee': '☕',
+        'accessories': '🎁'
     };
 
     const emoji = categoryEmojis[product.category] || '📦';
@@ -268,8 +270,9 @@ function showModalEmojiPlaceholder(product) {
         'mactabak': '👑',
         'pipes': '🎭',
         'machines': '🔧',
-        'tea': '🍃',
-        'tamper': '🔨'
+        'tea': '🍵',
+        'coffee': '☕',
+        'accessories': '🎁'
     };
 
     const emoji = categoryEmojis[product.category] || '🚬';
