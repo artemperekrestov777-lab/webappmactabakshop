@@ -1,0 +1,67 @@
+{
+  "products": [
+    {
+      "_id": "test-001",
+      "name": "Тестовая трубка Mr Burning",
+      "category": "pipes",
+      "unit": "piece",
+      "price": 2500,
+      "description": "Элегантная курительная трубка ручной работы",
+      "images": [],
+      "createdAt": "2025-11-04T06:30:00.000Z",
+      "updatedAt": "2025-11-04T06:30:00.000Z"
+    },
+    {
+      "_id": "test-002",
+      "name": "Табак Virginia Gold",
+      "category": "standard",
+      "unit": "weight",
+      "weight": 50,
+      "price": 1700,
+      "description": "Классический виргинский табак",
+      "images": [],
+      "createdAt": "2025-11-04T06:30:00.000Z",
+      "updatedAt": "2025-11-04T06:30:00.000Z"
+    },
+    {
+      "_id": "test-003",
+      "name": "Китайский чай Пуэр",
+      "category": "tea",
+      "unit": "piece",
+      "price": 800,
+      "description": "Выдержанный китайский чай",
+      "images": [],
+      "createdAt": "2025-11-04T06:30:00.000Z",
+      "updatedAt": "2025-11-04T06:30:00.000Z"
+    }
+  ],
+  "users": [
+    {
+      "id": "1",
+      "username": "admin",
+      "password": "$2b$10$IFPXUg9rooL2hDMIu5PTYu7BdUDHbT1lRzT.zfzY3Qer/94IIgmg6",
+      "role": "admin"
+    }
+  ],
+  "settings": {},
+  "logs": [
+    {
+      "id": "19a2bef9-fab9-4ca7-b408-fb9d98aad39f",
+      "action": "LOGIN",
+      "userId": "1",
+      "details": {
+        "username": "admin"
+      },
+      "timestamp": "2025-11-04T06:04:03.464Z"
+    },
+    {
+      "id": "70256565-4599-431f-af94-7bea07b52f11",
+      "action": "LOGIN",
+      "userId": "1",
+      "details": {
+        "username": "admin"
+      },
+      "timestamp": "2025-11-04T06:07:16.945Z"
+    }
+  ]
+}

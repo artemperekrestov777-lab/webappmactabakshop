@@ -793,7 +793,7 @@
                     <a class="nav-item active" onclick="showSection('dashboard')">
                         📊 Панель управления
                     </a>
-                    <a class="nav-item" onclick="showSection('products')" style="cursor: pointer;">
+                    <a class="nav-item" onclick="showSection('products')">
                         📦 Товары
                     </a>
                     <a class="nav-item" onclick="showSection('upload')">
@@ -809,15 +809,8 @@
                     <a class="nav-item" onclick="filterByCategory('new')">🆕 Новинки</a>
                     <a class="nav-item" onclick="filterByCategory('standard')">🚬 Стандарт</a>
                     <a class="nav-item" onclick="filterByCategory('aromatic')">🌸 Ароматные</a>
-                    <a class="nav-item" onclick="filterByCategory('pipe')">🎯 Трубочные</a>
-                    <a class="nav-item" onclick="filterByCategory('gilzy')">📜 Гильзы</a>
-                    <a class="nav-item" onclick="filterByCategory('custom')">⚙️ Свой набор</a>
-                    <a class="nav-item" onclick="filterByCategory('mactabak')">👑 МАКТАБАК</a>
-                    <a class="nav-item" onclick="filterByCategory('pipes')">🎭 Трубки</a>
-                    <a class="nav-item" onclick="filterByCategory('machines')">🔧 Машинки</a>
-                    <a class="nav-item" onclick="filterByCategory('tea')">🍵 Чай</a>
-                    <a class="nav-item" onclick="filterByCategory('coffee')">☕ Кофе</a>
-                    <a class="nav-item" onclick="filterByCategory('accessories')">🎁 Аксессуары</a>
+                    <a class="nav-item" onclick="filterByCategory('pipes')">🚰 Трубки</a>
+                    <a class="nav-item" onclick="filterByCategory('machines')">⚙️ Машинки</a>
                 </div>
             </aside>
 
@@ -859,12 +852,7 @@
 
                     <!-- Форма добавления товара -->
                     <div class="product-form">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                         <h2 class="upload-title">➕ Добавление нового товара</h2>
-                        <button class="btn btn-primary" onclick="showSection('products')" style="margin: 0;">
-                            📦 Показать все товары
-                        </button>
-                    </div>
                         <form id="productForm">
                             <div class="form-row">
                                 <div class="form-group">
@@ -875,18 +863,11 @@
                                     <label>Категория *</label>
                                     <select id="productCategory" required>
                                         <option value="">Выберите категорию</option>
-                                        <option value="new">🆕 Новинки от МАК ТАБАК</option>
-                                        <option value="standard">🚬 Стандартные бленды</option>
-                                        <option value="aromatic">🌸 Ароматизированные бленды</option>
-                                        <option value="pipe">🎯 Трубочные бленды</option>
-                                        <option value="gilzy">📜 Сигаретные гильзы</option>
-                                        <option value="custom">⚙️ Собрать свой набор</option>
-                                        <option value="mactabak">👑 Продукция от МАКТАБАК</option>
-                                        <option value="pipes">🎭 Курительные трубки</option>
-                                        <option value="machines">🔧 Машинки для набивки</option>
-                                        <option value="tea">🍵 Китайский чай</option>
-                                        <option value="coffee">☕ Кофе</option>
-                                        <option value="accessories">🎁 Аксессуары</option>
+                                        <option value="new">🆕 Новинки</option>
+                                        <option value="standard">🚬 Стандарт</option>
+                                        <option value="aromatic">🌸 Ароматные</option>
+                                        <option value="pipes">🚰 Трубки</option>
+                                        <option value="machines">⚙️ Машинки</option>
                                     </select>
                                 </div>
                             </div>
@@ -1022,18 +1003,11 @@
                         <div class="form-group">
                             <label>Категория</label>
                             <select id="editCategory" required>
-                                <option value="new">🆕 Новинки от МАК ТАБАК</option>
-                                <option value="standard">🚬 Стандартные бленды</option>
-                                <option value="aromatic">🌸 Ароматизированные бленды</option>
-                                <option value="pipe">🎯 Трубочные бленды</option>
-                                <option value="gilzy">📜 Сигаретные гильзы</option>
-                                <option value="custom">⚙️ Собрать свой набор</option>
-                                <option value="mactabak">👑 Продукция от МАКТАБАК</option>
-                                <option value="pipes">🎭 Курительные трубки</option>
-                                <option value="machines">🔧 Машинки для набивки</option>
-                                <option value="tea">🍵 Китайский чай</option>
-                                <option value="coffee">☕ Кофе</option>
-                                <option value="accessories">🎁 Аксессуары</option>
+                                <option value="new">🆕 Новинки</option>
+                                <option value="standard">🚬 Стандарт</option>
+                                <option value="aromatic">🌸 Ароматные</option>
+                                <option value="pipes">🚰 Трубки</option>
+                                <option value="machines">⚙️ Машинки</option>
                             </select>
                         </div>
                     </div>
@@ -1101,11 +1075,6 @@
                 showAdminPanel();
                 loadProducts();
                 loadStats();
-
-                // Проверяем хэш в URL для автоматического перехода
-                if (window.location.hash === '#products') {
-                    showSection('products');
-                }
             }
 
             // Обработчики форм
@@ -1382,48 +1351,23 @@
                     ? product.images[0].thumbnails?.thumb || product.images[0].original
                     : '/storage/products/thumb/default.jpg';
 
-                // Создаем ячейки
-                const tdImage = document.createElement('td');
-                tdImage.className = 'product-image-cell';
-                tdImage.innerHTML = `<img src="${firstImage}" alt="${product.name}" onerror="this.src='/storage/products/thumb/default.jpg'">`;
-
-                const tdName = document.createElement('td');
-                tdName.textContent = product.name;
-
-                const tdCategory = document.createElement('td');
-                tdCategory.textContent = getCategoryLabel(product.category);
-
-                const tdPrice = document.createElement('td');
-                tdPrice.textContent = product.price + ' ₽';
-
-                const tdImages = document.createElement('td');
-                tdImages.innerHTML = `<span class="product-images-count">${product.images?.length || 0} фото</span>`;
-
-                const tdActions = document.createElement('td');
-                const actionsDiv = document.createElement('div');
-                actionsDiv.className = 'action-buttons';
-
-                const editBtn = document.createElement('button');
-                editBtn.className = 'btn btn-sm btn-primary';
-                editBtn.textContent = '✏️';
-                editBtn.addEventListener('click', () => window.editProduct(product._id));
-
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'btn btn-sm btn-danger';
-                deleteBtn.textContent = '🗑️';
-                deleteBtn.addEventListener('click', () => window.deleteProduct(product._id));
-
-                actionsDiv.appendChild(editBtn);
-                actionsDiv.appendChild(deleteBtn);
-                tdActions.appendChild(actionsDiv);
-
-                tr.appendChild(tdImage);
-                tr.appendChild(tdName);
-                tr.appendChild(tdCategory);
-                tr.appendChild(tdPrice);
-                tr.appendChild(tdImages);
-                tr.appendChild(tdActions);
-
+                tr.innerHTML = `
+                    <td class="product-image-cell">
+                        <img src="${firstImage}" alt="${product.name}" onerror="this.src='/storage/products/thumb/default.jpg'">
+                    </td>
+                    <td>${product.name}</td>
+                    <td>${getCategoryLabel(product.category)}</td>
+                    <td>${product.price} ₽</td>
+                    <td>
+                        <span class="product-images-count">${product.images?.length || 0} фото</span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-sm btn-primary" onclick="editProduct('${product._id}')">✏️</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteProduct('${product._id}')">🗑️</button>
+                        </div>
+                    </td>
+                `;
                 tbody.appendChild(tr);
             });
         }
@@ -1433,15 +1377,8 @@
                 'new': '🆕 Новинки',
                 'standard': '🚬 Стандарт',
                 'aromatic': '🌸 Ароматные',
-                'pipe': '🎯 Трубочные',
-                'gilzy': '📜 Гильзы',
-                'custom': '⚙️ Свой набор',
-                'mactabak': '👑 МАКТАБАК',
-                'pipes': '🎭 Трубки',
-                'machines': '🔧 Машинки',
-                'tea': '🍵 Чай',
-                'coffee': '☕ Кофе',
-                'accessories': '🎁 Аксессуары'
+                'pipes': '🚰 Трубки',
+                'machines': '⚙️ Машинки'
             };
             return labels[category] || category;
         }
@@ -1499,7 +1436,7 @@
             }
         }
 
-        window.editProduct = function(productId) {
+        function editProduct(productId) {
             const product = products.find(p => p._id === productId);
             if (!product) return;
 
@@ -1531,7 +1468,7 @@
             document.getElementById('editModal').classList.add('active');
         }
 
-        window.saveEditedProduct = async function() {
+        async function saveEditedProduct() {
             showLoader();
 
             const productId = document.getElementById('editProductId').value;
@@ -1579,7 +1516,7 @@
             }
         }
 
-        window.deleteProduct = async function(productId) {
+        async function deleteProduct(productId) {
             if (!confirm('Вы уверены, что хотите удалить этот товар?')) return;
 
             showLoader();
@@ -1609,7 +1546,7 @@
             }
         }
 
-        window.removeProductImage = async function(productId, imageId) {
+        async function removeProductImage(productId, imageId) {
             if (!confirm('Удалить это изображение?')) return;
 
             showLoader();
@@ -1639,7 +1576,7 @@
             }
         }
 
-        window.closeEditModal = function() {
+        function closeEditModal() {
             document.getElementById('editModal').classList.remove('active');
             document.getElementById('editNewImages').value = '';
         }
@@ -1742,7 +1679,7 @@
         // ============================
         // UI ФУНКЦИИ
         // ============================
-        window.showSection = function(section) {
+        function showSection(section) {
             // Скрываем все секции
             document.getElementById('dashboardSection').style.display = 'none';
             document.getElementById('productsSection').style.display = 'none';
@@ -1774,7 +1711,7 @@
             event.target.classList.add('active');
         }
 
-        window.filterByCategory = function(category) {
+        function filterByCategory(category) {
             if (category === 'all') {
                 displayProducts(products);
             } else {

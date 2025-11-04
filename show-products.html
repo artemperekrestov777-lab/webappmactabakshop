@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Перейти к товарам</title>
+    <meta charset="utf-8">
+</head>
+<body>
+    <h1>Нажмите кнопку для перехода к товарам</h1>
+    <button onclick="goToProducts()" style="padding: 20px 40px; font-size: 20px; background: #667EEA; color: white; border: none; border-radius: 10px; cursor: pointer;">
+        📦 ОТКРЫТЬ РАЗДЕЛ ТОВАРОВ
+    </button>
+
+    <script>
+        function goToProducts() {
+            window.location.href = 'http://localhost:3001/webapp/admin-panel-pro.html#products';
+            setTimeout(() => {
+                window.location.reload();
+            }, 100);
+        }
+    </script>
+</body>
+</html>
