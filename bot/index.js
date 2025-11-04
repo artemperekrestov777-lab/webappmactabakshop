@@ -253,6 +253,7 @@ async function handleMessage(msg) {
 
     // Игнорируем команды, которые уже обработаны
     if (text && text.startsWith('/')) {
+        console.log(`Command detected: ${text}, skipping handleMessage`);
         return;
     }
 
